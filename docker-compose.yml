@@ -25,7 +25,7 @@ services:
       - redis
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`api.app.127.0.0.1.sslip.io`)
+      - traefik.http.routers.backend.rule=Host(`api.app.127.0.0.1.sslip.io`) || HostRegexp(`[a-z0-9-]+\.api\.app\.127\.0\.0\.1\.sslip\.io`)
       - traefik.http.routers.backend.entrypoints=web
       - traefik.http.services.backend.loadbalancer.server.port=8000
 
