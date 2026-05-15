@@ -1,0 +1,387 @@
+<script setup lang="ts">
+import { computed, reactive, ref } from 'vue';
+import { sidebarItems, type SidebarItem } from '@/config/sidebarItems';
+
+defineProps<{
+  sidebarOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+  closeSidebar: [];
+}>();
+
+const menus = reactive<SidebarItem[]>(sidebarItems);
+
+const themeIsDark = useState<boolean>('theme-is-dark', () => false);
+const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
+
+const activeFlyoutMenu = ref<string|null>(null);
+const flyoutTop = ref<number>(96);
+const closeFlyoutTimeout = ref<ReturnType<typeof setTimeout>|null>(null);
+
+const canShowItem = (item: SidebarItem): boolean => {
+  return item.allowed || item.show;
+};
+
+const isItemDisabled = (item: SidebarItem): boolean => {
+  return !item.allowed && item.show;
+};
+
+const getVisibleChildren = (item: SidebarItem): SidebarItem[] => {
+  return item.children?.filter((child: SidebarItem): boolean => canShowItem(child)) ?? [];
+};
+
+const itemHasChildren = (item: SidebarItem): boolean => {
+  return getVisibleChildren(item).length > 0;
+};
+
+const visibleSidebarItems = computed<SidebarItem[]>(() => {
+  return menus.filter((item: SidebarItem): boolean => canShowItem(item));
+});
+
+const activeFlyoutItem = computed<SidebarItem|null>(() => {
+  if (activeFlyoutMenu.value === null) {
+    return null;
+  }
+
+  return visibleSidebarItems.value.find((item: SidebarItem): boolean => item.key === activeFlyoutMenu.value) ?? null;
+});
+
+const isMenuOpen = (item: SidebarItem): boolean => {
+  return item.opened === true;
+};
+
+const toggleSidebarCollapsed = (): void => {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+
+  localStorage.setItem('sidebar-collapsed', sidebarCollapsed.value ? 'true' : 'false');
+
+  if (!sidebarCollapsed.value) {
+    activeFlyoutMenu.value = null;
+  }
+};
+
+const toggleMenu = (item: SidebarItem): void => {
+  item.opened = !item.opened;
+};
+
+const clearCloseFlyoutTimeout = (): void => {
+  if (closeFlyoutTimeout.value !== null) {
+    clearTimeout(closeFlyoutTimeout.value);
+    closeFlyoutTimeout.value = null;
+  }
+};
+
+const openFlyout = (item: SidebarItem, event?: MouseEvent): void => {
+  if (!sidebarCollapsed.value || !itemHasChildren(item) || isItemDisabled(item)) {
+    return;
+  }
+
+  clearCloseFlyoutTimeout();
+
+  if (event?.currentTarget instanceof HTMLElement) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    flyoutTop.value = Math.max(88, rect.top);
+  }
+
+  activeFlyoutMenu.value = item.key;
+};
+
+const scheduleCloseFlyout = (): void => {
+  clearCloseFlyoutTimeout();
+
+  closeFlyoutTimeout.value = setTimeout((): void => {
+    activeFlyoutMenu.value = null;
+  }, 1000);
+};
+
+const closeFlyout = (): void => {
+  clearCloseFlyoutTimeout();
+  activeFlyoutMenu.value = null;
+};
+
+const handleMenuClick = (item: SidebarItem, event?: MouseEvent): void => {
+  if (isItemDisabled(item) || !itemHasChildren(item)) {
+    return;
+  }
+
+  if (sidebarCollapsed.value) {
+    openFlyout(item, event);
+
+    return;
+  }
+
+  toggleMenu(item);
+};
+
+const closeMobileSidebar = (): void => {
+  emit('closeSidebar');
+};
+</script>
+
+<template>
+  <aside class="app-sidebar" :class="{ 'is-open': sidebarOpen }">
+    <div class="app-sidebar-brand">
+      <NuxtLink to="/" class="app-sidebar-logo-link">
+        <img
+            v-if="!sidebarCollapsed"
+            class="app-sidebar-logo-full"
+            :src="themeIsDark ? '/images/logo-dark.svg' : '/images/logo-light.svg'"
+            alt="Minski"
+        >
+
+        <img
+            v-else
+            class="app-sidebar-logo-icon"
+            :src="themeIsDark ? '/images/logo-icon-dark.svg' : '/images/logo-icon-light.svg'"
+            alt="Minski"
+        >
+      </NuxtLink>
+    </div>
+
+    <nav class="app-sidebar-nav">
+      <template v-for="item in visibleSidebarItems" :key="item.key">
+        <button
+            v-if="!itemHasChildren(item) && isItemDisabled(item)"
+            class="app-sidebar-link is-disabled"
+            type="button"
+            disabled
+        >
+          <span class="app-sidebar-link-icon">
+            <i v-if="item.icon" :class="item.icon"></i>
+          </span>
+
+          <span class="app-sidebar-link-label">{{ item.label }}</span>
+
+          <span class="app-sidebar-lock">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+        </button>
+
+        <NuxtLink
+            v-else-if="!itemHasChildren(item)"
+            :to="item.to"
+            class="app-sidebar-link"
+            @click="closeFlyout"
+        >
+          <span class="app-sidebar-link-icon">
+            <i v-if="item.icon" :class="item.icon"></i>
+          </span>
+
+          <span class="app-sidebar-link-label">{{ item.label }}</span>
+        </NuxtLink>
+
+        <template v-else>
+          <button
+              class="app-sidebar-link"
+              :class="{ 'is-disabled': isItemDisabled(item) }"
+              type="button"
+              :disabled="isItemDisabled(item)"
+              @click="handleMenuClick(item, $event)"
+              @mouseenter="openFlyout(item, $event)"
+              @mouseleave="scheduleCloseFlyout"
+          >
+            <span class="app-sidebar-link-icon">
+              <i v-if="item.icon" :class="item.icon"></i>
+            </span>
+
+            <span class="app-sidebar-link-label">{{ item.label }}</span>
+
+            <span v-if="isItemDisabled(item)" class="app-sidebar-lock">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+
+            <span
+                v-else
+                class="app-sidebar-link-arrow"
+                :class="{ 'rotate-180': isMenuOpen(item) }"
+            >
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+          </button>
+
+          <div
+              v-show="isMenuOpen(item) && !sidebarCollapsed"
+              class="app-sidebar-submenu"
+          >
+            <template v-for="child in getVisibleChildren(item)" :key="child.key">
+              <button
+                  v-if="!itemHasChildren(child) && isItemDisabled(child)"
+                  class="app-sidebar-sublink is-disabled"
+                  type="button"
+                  disabled
+              >
+                <i v-if="child.icon" :class="child.icon"></i>
+                <span>{{ child.label }}</span>
+
+                <span class="app-sidebar-lock">
+                  <i class="fa-solid fa-lock"></i>
+                </span>
+              </button>
+
+              <NuxtLink
+                  v-else-if="!itemHasChildren(child)"
+                  :to="child.to"
+                  class="app-sidebar-sublink"
+                  @click="closeMobileSidebar"
+              >
+                <i v-if="child.icon" :class="child.icon"></i>
+                <span>{{ child.label }}</span>
+              </NuxtLink>
+
+              <template v-else>
+                <button
+                    class="app-sidebar-sublink app-sidebar-sublink-button"
+                    :class="{ 'is-disabled': isItemDisabled(child) }"
+                    type="button"
+                    :disabled="isItemDisabled(child)"
+                    @click="toggleMenu(child)"
+                >
+                  <i v-if="child.icon" :class="child.icon"></i>
+                  <span>{{ child.label }}</span>
+
+                  <span v-if="isItemDisabled(child)" class="app-sidebar-lock">
+                    <i class="fa-solid fa-lock"></i>
+                  </span>
+
+                  <i
+                      v-else
+                      class="fa-solid fa-chevron-down app-sidebar-nested-arrow"
+                      :class="{ 'rotate-180': isMenuOpen(child) }"
+                  ></i>
+                </button>
+
+                <div
+                    v-show="isMenuOpen(child)"
+                    class="app-sidebar-nested-submenu"
+                >
+                  <template v-for="nestedChild in getVisibleChildren(child)" :key="nestedChild.key">
+                    <button
+                        v-if="isItemDisabled(nestedChild)"
+                        class="app-sidebar-nested-link is-disabled"
+                        type="button"
+                        disabled
+                    >
+                      {{ nestedChild.label }}
+
+                      <span class="app-sidebar-lock">
+                        <i class="fa-solid fa-lock"></i>
+                      </span>
+                    </button>
+
+                    <NuxtLink
+                        v-else
+                        :to="nestedChild.to"
+                        class="app-sidebar-nested-link"
+                        @click="closeMobileSidebar"
+                    >
+                      {{ nestedChild.label }}
+                    </NuxtLink>
+                  </template>
+                </div>
+              </template>
+            </template>
+          </div>
+        </template>
+      </template>
+    </nav>
+
+    <div
+        v-if="sidebarCollapsed && activeFlyoutItem"
+        class="app-sidebar-flyout"
+        :style="{ top: `${flyoutTop}px` }"
+        @mouseenter="clearCloseFlyoutTimeout"
+        @mouseleave="scheduleCloseFlyout"
+    >
+      <strong class="app-sidebar-flyout-title">
+        {{ activeFlyoutItem.label }}
+      </strong>
+
+      <template v-for="child in getVisibleChildren(activeFlyoutItem)" :key="child.key">
+        <button
+            v-if="!itemHasChildren(child) && isItemDisabled(child)"
+            class="app-sidebar-flyout-link is-disabled"
+            type="button"
+            disabled
+        >
+          <i v-if="child.icon" :class="child.icon"></i>
+          <span>{{ child.label }}</span>
+
+          <span class="app-sidebar-lock">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+        </button>
+
+        <NuxtLink
+            v-else-if="!itemHasChildren(child)"
+            :to="child.to"
+            class="app-sidebar-flyout-link"
+            @click="closeFlyout"
+        >
+          <i v-if="child.icon" :class="child.icon"></i>
+          <span>{{ child.label }}</span>
+        </NuxtLink>
+
+        <template v-else>
+          <button
+              class="app-sidebar-flyout-link app-sidebar-flyout-link-button"
+              :class="{ 'is-disabled': isItemDisabled(child) }"
+              type="button"
+              :disabled="isItemDisabled(child)"
+              @click="toggleMenu(child)"
+          >
+            <i v-if="child.icon" :class="child.icon"></i>
+            <span>{{ child.label }}</span>
+
+            <span v-if="isItemDisabled(child)" class="app-sidebar-lock">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+
+            <i
+                v-else
+                class="fa-solid fa-chevron-down app-sidebar-flyout-arrow"
+                :class="{ 'rotate-180': isMenuOpen(child) }"
+            ></i>
+          </button>
+
+          <div
+              v-show="isMenuOpen(child)"
+              class="app-sidebar-flyout-nested"
+          >
+            <template v-for="nestedChild in getVisibleChildren(child)" :key="nestedChild.key">
+              <button
+                  v-if="isItemDisabled(nestedChild)"
+                  class="app-sidebar-flyout-nested-link is-disabled"
+                  type="button"
+                  disabled
+              >
+                {{ nestedChild.label }}
+
+                <span class="app-sidebar-lock">
+                  <i class="fa-solid fa-lock"></i>
+                </span>
+              </button>
+
+              <NuxtLink
+                  v-else
+                  :to="nestedChild.to"
+                  class="app-sidebar-flyout-nested-link"
+                  @click="closeFlyout"
+              >
+                {{ nestedChild.label }}
+              </NuxtLink>
+            </template>
+          </div>
+        </template>
+      </template>
+    </div>
+
+    <button
+        class="app-sidebar-collapse"
+        type="button"
+        @click="toggleSidebarCollapsed"
+    >
+      <i :class="sidebarCollapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left'"></i>
+    </button>
+  </aside>
+</template>
