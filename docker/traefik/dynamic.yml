@@ -1,0 +1,24 @@
+http:
+  routers:
+    frontend:
+      rule: "Host(`app.127.0.0.1.sslip.io`) || HostRegexp(`^[a-z0-9-]+\\.app\\.127\\.0\\.0\\.1\\.sslip\\.io$`)"
+      entryPoints:
+        - web
+      service: frontend
+
+    backend:
+      rule: "Host(`api.app.127.0.0.1.sslip.io`) || HostRegexp(`^[a-z0-9-]+\\.api\\.app\\.127\\.0\\.0\\.1\\.sslip\\.io$`)"
+      entryPoints:
+        - web
+      service: backend
+
+  services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:3000"
+
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://backend:8000"

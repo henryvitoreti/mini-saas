@@ -7,15 +7,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo pdo_pgsql
 
-# instalar redis (phpredis)
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
-# instalar pcov (coverage)
 RUN pecl install pcov \
     && docker-php-ext-enable pcov
 
-# composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+COPY ./docker/php/entrypoint.sh /usr/local/bin/backend-entrypoint
+RUN chmod +x /usr/local/bin/backend-entrypoint
+
 WORKDIR /var/www/html
+
+ENTRYPOINT ["backend-entrypoint"]
