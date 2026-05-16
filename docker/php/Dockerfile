@@ -15,9 +15,4 @@ RUN pecl install pcov \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-COPY ./docker/php/entrypoint.sh /usr/local/bin/backend-entrypoint
-RUN chmod +x /usr/local/bin/backend-entrypoint
-
 WORKDIR /var/www/html
-
-ENTRYPOINT ["backend-entrypoint"]
