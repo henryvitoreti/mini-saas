@@ -501,6 +501,114 @@ input, select.form-select {
   }
 }
 
+.app-error-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+.app-error-panel {
+  width: min(100%, 520px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.app-error-logo {
+  width: min(220px, 72vw);
+  height: auto;
+  margin-bottom: 2.5rem;
+}
+
+.app-error-logo-dark {
+  display: none;
+}
+
+[data-theme='dark'] {
+  .app-error-logo-light {
+    display: none;
+  }
+
+  .app-error-logo-dark {
+    display: block;
+  }
+}
+
+.app-error-eyebrow {
+  display: block;
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.app-error-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-sidebar-active-bg);
+  color: var(--app-primary);
+  font-size: 1.85rem;
+}
+
+.app-error-title {
+  color: var(--app-text);
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.app-error-description {
+  color: var(--app-text-muted);
+  margin: 0.8rem auto 0;
+  max-width: 48ch;
+}
+
+.app-error-status {
+  min-width: 104px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-soft);
+  text-align: center;
+  margin-top: 1.5rem;
+
+  span {
+    display: block;
+    color: var(--app-text-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  strong {
+    display: block;
+    color: var(--app-text);
+    font-size: 1.45rem;
+    line-height: 1.1;
+    margin-top: 0.15rem;
+  }
+}
+
+.app-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 992px) {
   .app-sidebar,
   .app-shell[data-sidebar-collapsed='true'] .app-sidebar {
@@ -536,6 +644,7 @@ input, select.form-select {
   .app-content {
     padding: 1rem;
   }
+
 }
 
 @media (max-width: 576px) {
@@ -551,5 +660,9 @@ input, select.form-select {
 
   .app-content {
     padding: 0.875rem;
+  }
+
+  .app-error-actions .btn {
+    width: 100%;
   }
 }
