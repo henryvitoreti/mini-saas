@@ -24,6 +24,7 @@ type FakePaginate = {
 
 const props = withDefaults(defineProps<{
   title?: string;
+  subtitle?: string;
   columns: TableColumn[];
   baseUrl: string;
   baseApiUrl: string;
@@ -129,11 +130,12 @@ const handleCreate = (): void => {
 };
 
 const handleShow = (row: Record<string, unknown>): void => {
-  router.push(`${props.baseUrl}/visualizar/${row.id}`);
+  router.push(`${props.baseUrl}/${row.id}`);
 };
 
 const handleEdit = (row: Record<string, unknown>): void => {
-  router.push(`${props.baseUrl}/editar/${row.id}`);
+  // router.push(`${props.baseUrl}/editar`);
+  router.push(`${props.baseUrl}/${row.id}/editar`);
 };
 
 const handleDelete = (row: Record<string, unknown>): void => {
@@ -162,12 +164,12 @@ const changePage = (page: number): void => {
           {{ title }}
         </h1>
 
-        <span class="app-data-table-subtitle">
-          Gerencie os registros cadastrados no sistema.
+        <span v-show="subtitle" class="app-data-table-subtitle">
+          {{ subtitle }}
         </span>
       </div>
 
-      <button v-if="hasCreate" class="btn btn-custom-primary" type="button" @click="handleCreate">
+      <button v-if="hasCreate" class="btn btn-custom-primary " type="button" @click="handleCreate">
         <i class="fa-solid fa-plus me-2"></i>
         Novo
       </button>

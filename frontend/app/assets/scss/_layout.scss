@@ -104,7 +104,7 @@
   gap: 0.75rem;
   min-height: 46px;
   padding: 0.75rem 0.875rem;
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--app-sidebar-text);
   text-decoration: none;
   font-weight: 600;
@@ -115,7 +115,9 @@
 .app-sidebar-link:hover,
 .app-sidebar-sublink:hover,
 .app-sidebar-link.router-link-active,
-.app-sidebar-sublink.router-link-active {
+.app-sidebar-sublink.router-link-active,
+.app-sidebar-link.is-active,
+.app-sidebar-sublink.is-active {
   color: var(--app-sidebar-text-active);
   background: var(--app-sidebar-active-bg);
   box-shadow: inset 3px 0 0 var(--app-sidebar-active-border);
@@ -125,7 +127,7 @@
   min-width: 34px;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -164,7 +166,7 @@
   min-height: 40px;
   padding: 0.6rem 0.75rem;
   font-size: 0.92rem;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .app-sidebar-sublink-button {
@@ -191,7 +193,8 @@
 }
 
 .app-sidebar-nested-link:hover,
-.app-sidebar-nested-link.router-link-active {
+.app-sidebar-nested-link.router-link-active,
+.app-sidebar-nested-link.is-active {
   color: var(--app-sidebar-text-active);
   background: var(--app-sidebar-active-bg);
 }
@@ -254,7 +257,7 @@
   display: none;
   color: var(--app-text);
   background: var(--app-surface-soft);
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .app-header-title {
@@ -281,7 +284,7 @@
   width: 42px;
   height: 42px;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--app-surface);
   color: var(--app-text);
   display: inline-flex;
@@ -308,7 +311,7 @@
   left: 104px;
   min-width: 240px;
   padding: 0.75rem;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   box-shadow: var(--app-shadow);
@@ -335,7 +338,7 @@
   color: var(--app-sidebar-text);
   text-decoration: none;
   padding: 0.65rem 0.75rem;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 700;
   text-align: left;
 }
@@ -343,7 +346,9 @@
 .app-sidebar-flyout-link:hover,
 .app-sidebar-flyout-nested-link:hover,
 .app-sidebar-flyout-link.router-link-active,
-.app-sidebar-flyout-nested-link.router-link-active {
+.app-sidebar-flyout-nested-link.router-link-active,
+.app-sidebar-flyout-link.is-active,
+.app-sidebar-flyout-nested-link.is-active {
   color: var(--app-sidebar-text-active);
   background: var(--app-sidebar-active-bg);
 }
@@ -553,7 +558,7 @@ input, select.form-select {
 .app-error-icon {
   width: 72px;
   height: 72px;
-  border-radius: 8px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -578,7 +583,7 @@ input, select.form-select {
 .app-error-status {
   min-width: 104px;
   padding: 0.75rem 0.9rem;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid var(--app-border);
   background: var(--app-surface-soft);
   text-align: center;

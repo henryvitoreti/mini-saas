@@ -52,7 +52,7 @@
   gap: 0.65rem;
   padding: 0 0.95rem;
   border: 1px solid var(--app-border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--app-surface);
 }
 
@@ -82,7 +82,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--app-border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--app-surface);
   color: var(--app-text-muted);
 }
@@ -95,7 +95,7 @@
 .app-data-table-card {
   overflow: hidden;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--app-surface);
   box-shadow: var(--app-shadow);
 }
@@ -196,7 +196,7 @@
   min-width: 38px;
   min-height: 36px;
   padding: 0.35rem 0.65rem;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 0.9rem;
   color: var(--app-text-muted);
   background: transparent;
@@ -254,7 +254,7 @@
   gap: 0.45rem;
   padding: 0.55rem 3rem 0.55rem 0.55rem;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--app-surface);
   box-shadow: var(--app-shadow);
 }
@@ -267,7 +267,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--app-border);
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: var(--app-text-muted);
 }

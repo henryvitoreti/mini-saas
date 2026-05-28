@@ -24,7 +24,6 @@ export const sidebarItems: SidebarItem[] = [
         icon: 'fa-solid fa-warehouse',
         allowed: true,
         show: true,
-        opened: false,
         children: [
             {
                 key: 'clientes',
@@ -48,25 +47,23 @@ export const sidebarItems: SidebarItem[] = [
         key: 'operacional',
         label: 'Operacional',
         icon: 'fa-solid fa-screwdriver-wrench',
-        allowed: true,
+        allowed: false,
         show: true,
-        opened: false,
         children: [
             {
                 key: 'ordens-servico',
                 label: 'Ordens de Serviço',
                 icon: 'fa-solid fa-file-lines',
                 to: '/ordens-servico',
-                allowed: true,
+                allowed: false,
                 show: true,
             },
             {
                 key: 'checklists',
                 label: 'Checklists',
                 icon: 'fa-solid fa-clipboard-check',
-                allowed: true,
+                allowed: false,
                 show: true,
-                opened: false,
                 children: [
                     {
                         key: 'checklist-modelos',
@@ -79,7 +76,7 @@ export const sidebarItems: SidebarItem[] = [
                         key: 'checklist-historico',
                         label: 'Histórico',
                         to: '/checklists/historico',
-                        allowed: true,
+                        allowed: false,
                         show: true,
                     },
                 ],
@@ -90,9 +87,8 @@ export const sidebarItems: SidebarItem[] = [
         key: 'relatorios',
         label: 'Relatórios',
         icon: 'fa-solid fa-chart-line',
-        allowed: true,
+        allowed: false,
         show: true,
-        opened: false,
         children: [
             {
                 key: 'relatorio-os',
@@ -107,7 +103,7 @@ export const sidebarItems: SidebarItem[] = [
                 label: 'Produtividade',
                 icon: 'fa-solid fa-chart-line',
                 to: '/relatorios/produtividade',
-                allowed: true,
+                allowed: false,
                 show: true,
             },
         ],
@@ -117,7 +113,7 @@ export const sidebarItems: SidebarItem[] = [
         label: 'Configurações',
         icon: 'fa-solid fa-gear',
         to: '/configuracoes',
-        allowed: true,
+        allowed: false,
         show: true,
     },
 ];

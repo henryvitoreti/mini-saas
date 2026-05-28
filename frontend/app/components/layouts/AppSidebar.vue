@@ -11,6 +11,7 @@ const emit = defineEmits<{
 }>();
 
 const menus = reactive<SidebarItem[]>(sidebarItems);
+const route = useRoute();
 
 const themeIsDark = useState<boolean>('theme-is-dark', () => false);
 const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
@@ -47,8 +48,28 @@ const activeFlyoutItem = computed<SidebarItem|null>(() => {
   return visibleSidebarItems.value.find((item: SidebarItem): boolean => item.key === activeFlyoutMenu.value) ?? null;
 });
 
+const isItemRouteActive = (item: SidebarItem): boolean => {
+  if (!item.to) {
+    return false;
+  }
+
+  if (item.to === '/') {
+    return route.path === '/';
+  }
+
+  return route.path === item.to || route.path.startsWith(`${item.to}/`);
+};
+
+const isItemActive = (item: SidebarItem): boolean => {
+  if (isItemRouteActive(item)) {
+    return true;
+  }
+
+  return getVisibleChildren(item).some((child: SidebarItem): boolean => isItemActive(child));
+};
+
 const isMenuOpen = (item: SidebarItem): boolean => {
-  return item.opened === true;
+  return item.opened ?? isItemActive(item);
 };
 
 const toggleSidebarCollapsed = (): void => {
@@ -62,7 +83,7 @@ const toggleSidebarCollapsed = (): void => {
 };
 
 const toggleMenu = (item: SidebarItem): void => {
-  item.opened = !item.opened;
+  item.opened = !isMenuOpen(item);
 };
 
 const clearCloseFlyoutTimeout = (): void => {
@@ -162,6 +183,7 @@ const closeMobileSidebar = (): void => {
             v-else-if="!itemHasChildren(item)"
             :to="item.to"
             class="app-sidebar-link"
+            :class="{ 'is-active': isItemActive(item) }"
             @click="closeFlyout"
         >
           <span class="app-sidebar-link-icon">
@@ -174,7 +196,7 @@ const closeMobileSidebar = (): void => {
         <template v-else>
           <button
               class="app-sidebar-link"
-              :class="{ 'is-disabled': isItemDisabled(item) }"
+              :class="{ 'is-active': isItemActive(item), 'is-disabled': isItemDisabled(item) }"
               type="button"
               :disabled="isItemDisabled(item)"
               @click="handleMenuClick(item, $event)"
@@ -223,6 +245,7 @@ const closeMobileSidebar = (): void => {
                   v-else-if="!itemHasChildren(child)"
                   :to="child.to"
                   class="app-sidebar-sublink"
+                  :class="{ 'is-active': isItemActive(child) }"
                   @click="closeMobileSidebar"
               >
                 <i v-if="child.icon" :class="child.icon"></i>
@@ -232,7 +255,7 @@ const closeMobileSidebar = (): void => {
               <template v-else>
                 <button
                     class="app-sidebar-sublink app-sidebar-sublink-button"
-                    :class="{ 'is-disabled': isItemDisabled(child) }"
+                    :class="{ 'is-active': isItemActive(child), 'is-disabled': isItemDisabled(child) }"
                     type="button"
                     :disabled="isItemDisabled(child)"
                     @click="toggleMenu(child)"
@@ -273,6 +296,7 @@ const closeMobileSidebar = (): void => {
                         v-else
                         :to="nestedChild.to"
                         class="app-sidebar-nested-link"
+                        :class="{ 'is-active': isItemActive(nestedChild) }"
                         @click="closeMobileSidebar"
                     >
                       {{ nestedChild.label }}
@@ -316,6 +340,7 @@ const closeMobileSidebar = (): void => {
             v-else-if="!itemHasChildren(child)"
             :to="child.to"
             class="app-sidebar-flyout-link"
+            :class="{ 'is-active': isItemActive(child) }"
             @click="closeFlyout"
         >
           <i v-if="child.icon" :class="child.icon"></i>
@@ -325,7 +350,7 @@ const closeMobileSidebar = (): void => {
         <template v-else>
           <button
               class="app-sidebar-flyout-link app-sidebar-flyout-link-button"
-              :class="{ 'is-disabled': isItemDisabled(child) }"
+              :class="{ 'is-active': isItemActive(child), 'is-disabled': isItemDisabled(child) }"
               type="button"
               :disabled="isItemDisabled(child)"
               @click="toggleMenu(child)"
@@ -366,6 +391,7 @@ const closeMobileSidebar = (): void => {
                   v-else
                   :to="nestedChild.to"
                   class="app-sidebar-flyout-nested-link"
+                  :class="{ 'is-active': isItemActive(nestedChild) }"
                   @click="closeFlyout"
               >
                 {{ nestedChild.label }}
