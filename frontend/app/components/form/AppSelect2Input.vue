@@ -208,7 +208,7 @@ onBeforeUnmount(() => {
         :placeholder="placeholder"
         :disabled="disabled"
         :loading="isLoading"
-        :clearable="!required"
+        :clearable="true"
         :filterable="!usesApi"
         :selectable="(option: SelectOption) => !option.disabled"
         @update:model-value="emitValue"

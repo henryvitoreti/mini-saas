@@ -252,6 +252,12 @@
   color: var(--app-text);
 }
 
+.app-form-input:hover,
+.app-form-select:hover,
+.app-form-textarea:hover {
+  border-color: var(--app-border);
+}
+
 .app-form-select {
   padding-right: 2.75rem;
   background-image: none;
@@ -289,14 +295,23 @@
 }
 
 .app-select2-input .vs__dropdown-toggle {
-  min-height: 44px;
-  padding: 0.7rem 0.85rem;
+  height: 49px;
+  min-height: 49px;
+  padding: 0;
+  border-color: var(--app-border);
   background: var(--app-surface);
+  overflow: hidden;
+}
+
+.app-select2-input .vs__dropdown-toggle:hover {
+  border-color: var(--app-border);
 }
 
 .app-select2-input .vs__selected-options {
   min-width: 0;
-  padding: 0;
+  padding: 0 0 0 0.85rem;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
 .app-select2-input .vs__selected,
@@ -306,16 +321,49 @@
   padding: 0;
 }
 
+.app-select2-input .vs__search,
+.app-select2-input .vs__search:focus {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--app-text);
+  caret-color: var(--app-text);
+}
+
 .app-select2-input .vs__selected {
-  min-height: 30px;
+  min-height: 0;
+  max-width: 100%;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-select2-input .vs__actions {
-  padding: 0 0 0 0.75rem;
+  flex: 0 0 auto;
+  padding: 0 0.85rem 0 0.75rem;
 }
 
 .app-select2-input .vs__clear {
-  margin-right: 0.75rem;
+  margin-right: 0.6rem;
+  color: var(--app-text-muted);
+  opacity: 1;
+}
+
+.app-select2-input .vs__clear:hover {
+  color: var(--app-text);
+}
+
+.app-select2-input .vs__search,
+.app-select2-input .vs__search:focus,
+.app-select2-input .vs__search:-webkit-autofill,
+.app-select2-input .vs__search:-webkit-autofill:hover,
+.app-select2-input .vs__search:-webkit-autofill:focus {
+  border: 0;
+  outline: 0;
+  background: var(--app-surface);
+  box-shadow: 0 0 0 1000px var(--app-surface) inset;
+  -webkit-text-fill-color: var(--app-text);
 }
 
 .app-select2-input .vs__dropdown-menu {
@@ -363,7 +411,9 @@
 
 .app-form-input:focus,
 .app-form-select:focus,
-.app-form-textarea:focus {
+.app-form-textarea:focus,
+.app-select2-input .vs--open .vs__dropdown-toggle,
+.app-select2-input .vs--searching .vs__dropdown-toggle {
   outline: none;
   border-color: var(--app-primary);
   box-shadow: 0 0 0 3px rgba(80, 143, 255, 0.12);
@@ -372,16 +422,31 @@
 .app-form-input:-webkit-autofill,
 .app-form-input:-webkit-autofill:hover,
 .app-form-input:-webkit-autofill:focus {
-  border-color: var(--app-border);
-  box-shadow: 0 0 0 1000px var(--app-surface) inset;
-  -webkit-text-fill-color: var(--app-text);
+  border-color: var(--app-border) !important;
+  outline: 0 !important;
+  background-color: var(--app-surface) !important;
+  box-shadow: 0 0 0 1000px var(--app-surface) inset !important;
+  caret-color: var(--app-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: var(--app-text) !important;
+  transition: background-color 9999s ease-out;
 }
 
 .app-form-input:-webkit-autofill:focus {
-  border-color: var(--app-primary);
+  border-color: var(--app-primary) !important;
   box-shadow:
     0 0 0 1000px var(--app-surface) inset,
-    0 0 0 3px rgba(80, 143, 255, 0.12);
+    0 0 0 3px rgba(80, 143, 255, 0.12) !important;
+}
+
+.app-form-input:autofill,
+.app-form-input:autofill:hover,
+.app-form-input:autofill:focus {
+  border-color: var(--app-border) !important;
+  outline: 0 !important;
+  background-color: var(--app-surface) !important;
+  box-shadow: 0 0 0 1000px var(--app-surface) inset !important;
+  color: var(--app-text) !important;
 }
 
 [data-theme='dark'] {
@@ -393,33 +458,23 @@
     color: #a7adb6;
   }
 
-  .app-form-input,
-  .app-form-select,
-  .app-form-textarea,
-  .app-select2-input .vs__dropdown-toggle,
-  .app-select2-input .vs--disabled .vs__dropdown-toggle,
-  .app-select2-input .vs--disabled .vs__clear,
-  .app-select2-input .vs--disabled .vs__search,
-  .app-select2-input .vs--disabled .vs__selected,
-  .app-select2-input .vs--disabled .vs__open-indicator {
-    background: #303030;
-  }
-
-  .app-select2-input {
-    --vs-dropdown-bg: #303030;
-  }
-
   .app-form-input:-webkit-autofill,
   .app-form-input:-webkit-autofill:hover,
-  .app-form-input:-webkit-autofill:focus {
-    box-shadow: 0 0 0 1000px #303030 inset;
-    -webkit-text-fill-color: var(--app-text);
+  .app-form-input:-webkit-autofill:focus,
+  .app-select2-input .vs__search:-webkit-autofill,
+  .app-select2-input .vs__search:-webkit-autofill:hover,
+  .app-select2-input .vs__search:-webkit-autofill:focus {
+    border-color: var(--app-border) !important;
+    background-color: var(--app-surface) !important;
+    box-shadow: 0 0 0 1000px var(--app-surface) inset !important;
+    -webkit-text-fill-color: var(--app-text) !important;
   }
 
   .app-form-input:-webkit-autofill:focus {
+    border-color: var(--app-primary) !important;
     box-shadow:
-      0 0 0 1000px #303030 inset,
-      0 0 0 3px rgba(80, 143, 255, 0.12);
+      0 0 0 1000px var(--app-surface) inset,
+      0 0 0 3px rgba(80, 143, 255, 0.12) !important;
   }
 }
 
