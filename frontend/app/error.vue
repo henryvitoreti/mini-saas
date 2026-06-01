@@ -1,9 +1,5 @@
 <script setup lang="ts">
-type AppError = {
-  statusCode?: number;
-  statusMessage?: string;
-  message?: string;
-};
+import type { AppError, ErrorContent } from '@/types/ui/error';
 
 const props = defineProps<{
   error: AppError;
@@ -19,13 +15,8 @@ const statusCode = computed<number>(() => {
   return props.error.statusCode ?? 500;
 });
 
-const errorContent = computed(() => {
-  const contentByStatus: Record<number, {
-    icon: string;
-    eyebrow: string;
-    title: string;
-    description: string;
-  }> = {
+const errorContent = computed<ErrorContent>(() => {
+  const contentByStatus: Record<number, ErrorContent> = {
     401: {
       icon: 'fa-solid fa-lock',
       eyebrow: 'Acesso restrito',
@@ -60,9 +51,9 @@ const errorContent = computed(() => {
   };
 });
 
-const goHome = async (): Promise<void> => {
+async function goHome(): Promise<void> {
   await clearError({ redirect: '/' });
-};
+}
 </script>
 
 <template>

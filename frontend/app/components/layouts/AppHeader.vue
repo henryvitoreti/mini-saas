@@ -5,17 +5,17 @@ const emit = defineEmits<{
 
 const themeIsDark = useState<boolean>('theme-is-dark', () => false);
 
-const applyTheme = (): void => {
+function applyTheme(): void {
   document.documentElement.setAttribute('data-theme', themeIsDark.value ? 'dark' : 'light');
-};
+}
 
-const toggleTheme = (): void => {
+function toggleTheme(): void {
   themeIsDark.value = !themeIsDark.value;
 
   localStorage.setItem('theme', themeIsDark.value ? 'dark' : 'light');
 
   applyTheme();
-};
+}
 </script>
 
 <template>

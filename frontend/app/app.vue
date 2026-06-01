@@ -5,9 +5,9 @@ const appReady = ref<boolean>(false);
 const themeIsDark = useState<boolean>('theme-is-dark', () => false);
 const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
 
-const applyTheme = (): void => {
+function applyTheme(): void {
   document.documentElement.setAttribute('data-theme', themeIsDark.value ? 'dark' : 'light');
-};
+}
 
 onMounted((): void => {
   const storedTheme = localStorage.getItem('theme');

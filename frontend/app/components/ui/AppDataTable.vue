@@ -1,26 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from "vue";
 import {useRouter} from "vue-router";
-
-type TableColumn = {
-  label: string;
-  name: string;
-  field: string;
-  wrap?: boolean;
-  render?: (row: Record<string, unknown>, value: unknown) => string|number|boolean|null;
-};
-
-type FakePaginate = {
-  data: Record<string, unknown>[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number|null;
-  to: number|null;
-  prev_page_url: string|null;
-  next_page_url: string|null;
-};
+import type { TableColumn, TablePagination, TableRow } from '@/types/ui/table';
 
 const props = withDefaults(defineProps<{
   title?: string;
@@ -52,9 +33,9 @@ const router = useRouter();
 
 const search = ref<string>('');
 const filtersOpen = ref<boolean>(false);
-const selectedRow = ref<Record<string, unknown>|null>(null);
+const selectedRow = ref<TableRow | null>(null);
 
-const paginate = ref<FakePaginate>({
+const paginate = ref<TablePagination>({
   data: [
     { id: 1, name: 'João Pereira', phone: '(48) 99999-1111', is_active: true },
     { id: 2, name: 'Mariana Souza', phone: '(48) 98888-2222', is_active: true },
@@ -81,7 +62,7 @@ const visiblePages = computed<number[]>(() => {
   });
 });
 
-const getColumnValue = (row: Record<string, unknown>, column: TableColumn): unknown => {
+function getColumnValue(row: TableRow, column: TableColumn): unknown {
   const value = row[column.field];
 
   if (column.render) {
@@ -89,17 +70,17 @@ const getColumnValue = (row: Record<string, unknown>, column: TableColumn): unkn
   }
 
   return value ?? '-';
-};
+}
 
-const getCellClass = (column: TableColumn): string => {
+function getCellClass(column: TableColumn): string {
   return column.wrap ? 'app-table-cell-wrap' : 'app-table-cell-nowrap';
-};
+}
 
-const isSelectedRow = (row: Record<string, unknown>): boolean => {
+function isSelectedRow(row: TableRow): boolean {
   return selectedRow.value?.id === row.id;
-};
+}
 
-const selectRow = (row: Record<string, unknown>): void => {
+function selectRow(row: TableRow): void {
   if (isSelectedRow(row)) {
     selectedRow.value = null;
 
@@ -107,53 +88,53 @@ const selectRow = (row: Record<string, unknown>): void => {
   }
 
   selectedRow.value = row;
-};
+}
 
-const clearSelectedRow = (): void => {
+function clearSelectedRow(): void {
   selectedRow.value = null;
-};
+}
 
-const openFilters = (): void => {
+function openFilters(): void {
   filtersOpen.value = true;
-};
+}
 
-const closeFilters = (): void => {
+function closeFilters(): void {
   filtersOpen.value = false;
-};
+}
 
-const applyFilters = (): void => {
+function applyFilters(): void {
   closeFilters();
-};
+}
 
-const handleCreate = (): void => {
+function handleCreate(): void {
   router.push(`${props.baseUrl}/criar`);
-};
+}
 
-const handleShow = (row: Record<string, unknown>): void => {
+function handleShow(row: TableRow): void {
   router.push(`${props.baseUrl}/${row.id}`);
-};
+}
 
-const handleEdit = (row: Record<string, unknown>): void => {
+function handleEdit(row: TableRow): void {
   // router.push(`${props.baseUrl}/editar`);
   router.push(`${props.baseUrl}/${row.id}/editar`);
-};
+}
 
-const handleDelete = (row: Record<string, unknown>): void => {
+function handleDelete(row: TableRow): void {
   console.log('delete futuro:', `${props.baseApiUrl}/${row.id}`);
-};
+}
 
-const handleRestore = (row: Record<string, unknown>): void => {
+function handleRestore(row: TableRow): void {
   console.log('restore futuro:', `${props.baseApiUrl}/${row.id}/restore`);
-};
+}
 
-const changePage = (page: number): void => {
+function changePage(page: number): void {
   if (page < 1 || page > paginate.value.last_page) {
     return;
   }
 
   paginate.value.current_page = page;
   selectedRow.value = null;
-};
+}
 </script>
 
 <template>

@@ -2,24 +2,8 @@
 import VSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
-
-type SelectOption = {
-  label: string;
-  value: string | number;
-  disabled?: boolean;
-};
-
-type PaginatedResponse = SelectOption[] | {
-  data?: SelectOption[];
-  items?: SelectOption[];
-  results?: SelectOption[];
-  current_page?: number;
-  last_page?: number;
-  meta?: {
-    current_page?: number;
-    last_page?: number;
-  };
-};
+import type { PaginatedResponse } from '@/types/common/pagination';
+import type { SelectOption } from '@/types/common/select';
 
 const props = withDefaults(defineProps<{
   value?: string | number | null;
@@ -36,6 +20,7 @@ const props = withDefaults(defineProps<{
   pageParam?: string;
   perPageParam?: string;
   perPage?: number;
+  errorMessage?: string | null;
 }>(), {
   options: () => [],
   searchParam: 'search',
@@ -65,31 +50,31 @@ const inputValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');
 });
 
-const emitValue = (value: string | number | null): void => {
+function emitValue(value: string | number | null): void {
   const normalizedValue = value === null ? '' : String(value);
 
   emit('update', normalizedValue);
   emit('update:value', normalizedValue);
   emit('update:modelValue', normalizedValue);
-};
+}
 
-const getResponseOptions = (response: PaginatedResponse): SelectOption[] => {
+function getResponseOptions(response: PaginatedResponse<SelectOption>): SelectOption[] {
   if (Array.isArray(response)) {
     return response;
   }
 
   return response.data ?? response.items ?? response.results ?? [];
-};
+}
 
-const getResponseLastPage = (response: PaginatedResponse): number | undefined => {
+function getResponseLastPage(response: PaginatedResponse<SelectOption>): number | undefined {
   if (Array.isArray(response)) {
     return undefined;
   }
 
   return response.last_page ?? response.meta?.last_page;
-};
+}
 
-const fetchOptions = async (page: number): Promise<void> => {
+async function fetchOptions(page: number): Promise<void> {
   if (!props.apiUrl || isLoading.value || (!hasMorePages.value && page > 1)) {
     return;
   }
@@ -100,7 +85,7 @@ const fetchOptions = async (page: number): Promise<void> => {
   abortController.value = controller;
 
   try {
-    const response = await $fetch<PaginatedResponse>(props.apiUrl, {
+    const response = await $fetch<PaginatedResponse<SelectOption>>(props.apiUrl, {
       signal: controller.signal,
       query: {
         [props.searchParam]: searchTerm.value,
@@ -137,9 +122,9 @@ const fetchOptions = async (page: number): Promise<void> => {
       abortController.value = null;
     }
   }
-};
+}
 
-const resetRemoteOptions = async (): Promise<void> => {
+async function resetRemoteOptions(): Promise<void> {
   abortController.value?.abort();
   requestIndex.value++;
   isLoading.value = false;
@@ -147,25 +132,25 @@ const resetRemoteOptions = async (): Promise<void> => {
   currentPage.value = 1;
   hasMorePages.value = true;
   await fetchOptions(1);
-};
+}
 
-const loadNextPage = (): void => {
+function loadNextPage(): void {
   if (!usesApi.value || isLoading.value || !hasMorePages.value) {
     return;
   }
 
   void fetchOptions(currentPage.value + 1);
-};
+}
 
-const handleSearch = (search: string): void => {
+function handleSearch(search: string): void {
   searchTerm.value = search;
 
   if (usesApi.value) {
     void resetRemoteOptions();
   }
-};
+}
 
-const setLoadMoreElement = (element: Element | null): void => {
+function setLoadMoreElement(element: Element | null): void {
   intersectionObserver.value?.disconnect();
 
   if (!element || typeof IntersectionObserver === 'undefined') {
@@ -179,7 +164,7 @@ const setLoadMoreElement = (element: Element | null): void => {
   });
 
   intersectionObserver.value.observe(element);
-};
+}
 
 watch(
   () => props.options,
@@ -256,5 +241,9 @@ onBeforeUnmount(() => {
         tabindex="-1"
         aria-hidden="true"
     >
+
+    <p v-if="errorMessage" class="app-form-error-message">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>

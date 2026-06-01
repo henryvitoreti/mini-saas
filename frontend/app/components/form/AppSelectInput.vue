@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
-
-type SelectOption = {
-  label: string;
-  value: string | number;
-  disabled?: boolean;
-};
+import type { SelectOption } from '@/types/common/select';
 
 const props = withDefaults(defineProps<{
   value?: string | number | null;
@@ -16,6 +11,7 @@ const props = withDefaults(defineProps<{
   required?: boolean;
   disabled?: boolean;
   tip?: string;
+  errorMessage?: string | null;
   options: SelectOption[];
 }>(), {
   options: () => [],
@@ -33,16 +29,16 @@ const inputValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');
 });
 
-const emitValue = (value: string): void => {
+function emitValue(value: string): void {
   emit('update', value);
   emit('update:value', value);
   emit('update:modelValue', value);
-};
+}
 
-const handleChange = (event: Event): void => {
+function handleChange(event: Event): void {
   const target = event.target as HTMLSelectElement;
   emitValue(target.value);
-};
+}
 </script>
 
 <template>
@@ -82,5 +78,9 @@ const handleChange = (event: Event): void => {
 
       <i class="fa-solid fa-chevron-down app-select-input-arrow"></i>
     </div>
+
+    <p v-if="errorMessage" class="app-form-error-message">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>

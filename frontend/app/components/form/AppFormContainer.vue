@@ -1,8 +1,5 @@
 <script setup lang="ts">
-type Breadcrumb = {
-  label: string;
-  to?: string;
-};
+import type { Breadcrumb } from '@/types/common/navigation';
 
 defineProps<{
   title: string;

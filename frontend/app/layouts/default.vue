@@ -5,27 +5,31 @@ import AppSidebar from '@/components/layouts/AppSidebar.vue';
 const sidebarOpen = ref<boolean>(false);
 const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
 
-const toggleSidebar = (): void => {
+function toggleSidebar(): void {
   sidebarOpen.value = !sidebarOpen.value;
-};
+}
 
-const closeSidebar = (): void => {
+function closeSidebar(): void {
   sidebarOpen.value = false;
-};
+}
 </script>
 
 <template>
-  <div class="app-shell" :data-sidebar-collapsed="sidebarCollapsed">
-    <AppSidebar
-        :sidebar-open="sidebarOpen"
-        @close-sidebar="closeSidebar"
-    />
-
+  <div
+      class="app-shell"
+      :data-sidebar-collapsed="sidebarCollapsed"
+      :data-sidebar-open="sidebarOpen"
+  >
     <div
         v-if="sidebarOpen"
         class="app-overlay"
         @click="closeSidebar"
     ></div>
+
+    <AppSidebar
+        :sidebar-open="sidebarOpen"
+        @close-sidebar="closeSidebar"
+    />
 
     <div class="app-main">
       <AppHeader @toggle-sidebar="toggleSidebar" />

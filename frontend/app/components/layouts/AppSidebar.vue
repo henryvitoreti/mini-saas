@@ -2,7 +2,7 @@
 import { computed, reactive, ref } from 'vue';
 import { sidebarItems, type SidebarItem } from '@/config/sidebarItems';
 
-defineProps<{
+const props = defineProps<{
   sidebarOpen: boolean;
 }>();
 
@@ -15,26 +15,27 @@ const route = useRoute();
 
 const themeIsDark = useState<boolean>('theme-is-dark', () => false);
 const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
+const sidebarUsesCollapsedLayout = computed<boolean>(() => sidebarCollapsed.value && !props.sidebarOpen);
 
 const activeFlyoutMenu = ref<string|null>(null);
 const flyoutTop = ref<number>(96);
 const closeFlyoutTimeout = ref<ReturnType<typeof setTimeout>|null>(null);
 
-const canShowItem = (item: SidebarItem): boolean => {
+function canShowItem(item: SidebarItem): boolean {
   return item.allowed || item.show;
-};
+}
 
-const isItemDisabled = (item: SidebarItem): boolean => {
+function isItemDisabled(item: SidebarItem): boolean {
   return !item.allowed && item.show;
-};
+}
 
-const getVisibleChildren = (item: SidebarItem): SidebarItem[] => {
+function getVisibleChildren(item: SidebarItem): SidebarItem[] {
   return item.children?.filter((child: SidebarItem): boolean => canShowItem(child)) ?? [];
-};
+}
 
-const itemHasChildren = (item: SidebarItem): boolean => {
+function itemHasChildren(item: SidebarItem): boolean {
   return getVisibleChildren(item).length > 0;
-};
+}
 
 const visibleSidebarItems = computed<SidebarItem[]>(() => {
   return menus.filter((item: SidebarItem): boolean => canShowItem(item));
@@ -48,7 +49,7 @@ const activeFlyoutItem = computed<SidebarItem|null>(() => {
   return visibleSidebarItems.value.find((item: SidebarItem): boolean => item.key === activeFlyoutMenu.value) ?? null;
 });
 
-const isItemRouteActive = (item: SidebarItem): boolean => {
+function isItemRouteActive(item: SidebarItem): boolean {
   if (!item.to) {
     return false;
   }
@@ -58,43 +59,43 @@ const isItemRouteActive = (item: SidebarItem): boolean => {
   }
 
   return route.path === item.to || route.path.startsWith(`${item.to}/`);
-};
+}
 
-const isItemActive = (item: SidebarItem): boolean => {
+function isItemActive(item: SidebarItem): boolean {
   if (isItemRouteActive(item)) {
     return true;
   }
 
   return getVisibleChildren(item).some((child: SidebarItem): boolean => isItemActive(child));
-};
+}
 
-const isMenuOpen = (item: SidebarItem): boolean => {
+function isMenuOpen(item: SidebarItem): boolean {
   return item.opened ?? isItemActive(item);
-};
+}
 
-const toggleSidebarCollapsed = (): void => {
+function toggleSidebarCollapsed(): void {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 
   localStorage.setItem('sidebar-collapsed', sidebarCollapsed.value ? 'true' : 'false');
 
-  if (!sidebarCollapsed.value) {
+  if (!sidebarUsesCollapsedLayout.value) {
     activeFlyoutMenu.value = null;
   }
-};
+}
 
-const toggleMenu = (item: SidebarItem): void => {
+function toggleMenu(item: SidebarItem): void {
   item.opened = !isMenuOpen(item);
-};
+}
 
-const clearCloseFlyoutTimeout = (): void => {
+function clearCloseFlyoutTimeout(): void {
   if (closeFlyoutTimeout.value !== null) {
     clearTimeout(closeFlyoutTimeout.value);
     closeFlyoutTimeout.value = null;
   }
-};
+}
 
-const openFlyout = (item: SidebarItem, event?: MouseEvent): void => {
-  if (!sidebarCollapsed.value || !itemHasChildren(item) || isItemDisabled(item)) {
+function openFlyout(item: SidebarItem, event?: MouseEvent): void {
+  if (!sidebarUsesCollapsedLayout.value || !itemHasChildren(item) || isItemDisabled(item)) {
     return;
   }
 
@@ -106,46 +107,47 @@ const openFlyout = (item: SidebarItem, event?: MouseEvent): void => {
   }
 
   activeFlyoutMenu.value = item.key;
-};
+}
 
-const scheduleCloseFlyout = (): void => {
+function scheduleCloseFlyout(): void {
   clearCloseFlyoutTimeout();
 
   closeFlyoutTimeout.value = setTimeout((): void => {
     activeFlyoutMenu.value = null;
   }, 1000);
-};
+}
 
-const closeFlyout = (): void => {
+function closeFlyout(): void {
   clearCloseFlyoutTimeout();
   activeFlyoutMenu.value = null;
-};
+}
 
-const handleMenuClick = (item: SidebarItem, event?: MouseEvent): void => {
+function handleMenuClick(item: SidebarItem, event?: MouseEvent): void {
   if (isItemDisabled(item) || !itemHasChildren(item)) {
     return;
   }
 
-  if (sidebarCollapsed.value) {
+  if (sidebarUsesCollapsedLayout.value) {
     openFlyout(item, event);
 
     return;
   }
 
   toggleMenu(item);
-};
+}
 
-const closeMobileSidebar = (): void => {
+function closeMobileSidebar(): void {
+  closeFlyout();
   emit('closeSidebar');
-};
+}
 </script>
 
 <template>
-  <aside class="app-sidebar" :class="{ 'is-open': sidebarOpen }">
+  <aside class="app-sidebar" :class="{ 'is-open': props.sidebarOpen }">
     <div class="app-sidebar-brand">
       <NuxtLink to="/" class="app-sidebar-logo-link">
         <img
-            v-if="!sidebarCollapsed"
+            v-if="!sidebarUsesCollapsedLayout"
             class="app-sidebar-logo-full"
             :src="themeIsDark ? '/images/logo-dark.svg' : '/images/logo-light.svg'"
             alt="Minski"
@@ -184,7 +186,7 @@ const closeMobileSidebar = (): void => {
             :to="item.to"
             class="app-sidebar-link"
             :class="{ 'is-active': isItemActive(item) }"
-            @click="closeFlyout"
+            @click="closeMobileSidebar"
         >
           <span class="app-sidebar-link-icon">
             <i v-if="item.icon" :class="item.icon"></i>
@@ -223,7 +225,7 @@ const closeMobileSidebar = (): void => {
           </button>
 
           <div
-              v-show="isMenuOpen(item) && !sidebarCollapsed"
+              v-show="isMenuOpen(item) && !sidebarUsesCollapsedLayout"
               class="app-sidebar-submenu"
           >
             <template v-for="child in getVisibleChildren(item)" :key="child.key">
@@ -311,7 +313,7 @@ const closeMobileSidebar = (): void => {
     </nav>
 
     <div
-        v-if="sidebarCollapsed && activeFlyoutItem"
+        v-if="sidebarUsesCollapsedLayout && activeFlyoutItem"
         class="app-sidebar-flyout"
         :style="{ top: `${flyoutTop}px` }"
         @mouseenter="clearCloseFlyoutTimeout"

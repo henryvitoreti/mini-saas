@@ -10,6 +10,7 @@ const props = defineProps<{
   required?: boolean;
   tip?: string;
   rows?: number;
+  errorMessage?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -24,16 +25,16 @@ const inputValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');
 });
 
-const emitValue = (value: string): void => {
+function emitValue(value: string): void {
   emit('update', value);
   emit('update:value', value);
   emit('update:modelValue', value);
-};
+}
 
-const handleInput = (event: Event): void => {
+function handleInput(event: Event): void {
   const target = event.target as HTMLTextAreaElement;
   emitValue(target.value);
-};
+}
 </script>
 
 <template>
@@ -57,5 +58,9 @@ const handleInput = (event: Event): void => {
         :rows="rows ?? 4"
         @input="handleInput"
     ></textarea>
+
+    <p v-if="errorMessage" class="app-form-error-message">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>

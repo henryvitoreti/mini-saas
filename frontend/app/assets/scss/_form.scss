@@ -146,6 +146,14 @@
   color: #dc3545;
 }
 
+.app-form-error-message {
+  margin: 0;
+  color: #dc3545;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  word-break: break-all;
+}
+
 .app-form-tip {
   width: 18px;
   height: 18px;
@@ -172,7 +180,6 @@
   border-radius: 6px;
   background: var(--app-surface);
   color: var(--app-text);
-  box-shadow: var(--app-shadow);
   font-size: 0.78rem;
   line-height: 1.35;
   text-align: left;
@@ -283,7 +290,7 @@
 
 .app-select2-input .vs__dropdown-toggle {
   min-height: 44px;
-  padding: 0.32rem 0.85rem;
+  padding: 0.7rem 0.85rem;
   background: var(--app-surface);
 }
 
@@ -418,6 +425,21 @@
 
 .app-switch-input {
   display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.app-switch-input-body {
+  display: flex;
+}
+
+.app-switch-input-body.is-default-layout {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.app-switch-input-body.is-inline-layout {
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
@@ -427,6 +449,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
+  min-height: 44px;
   margin: 0;
   cursor: pointer;
 }
@@ -496,7 +519,33 @@
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 8px;
-  box-shadow: var(--app-shadow);
+  opacity: 0.6;
+  width: fit-content;
+  align-self: end;
+  &:hover {
+    opacity: 1;
+  }
+  .save-button {
+    padding: 0 28px;
+  }
+}
+
+.app-form-icon-button,
+.app-form-action-button {
+  min-height: 2.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-form-icon-button {
+  width: 2.375rem;
+  height: 2.375rem;
+  padding: 0;
+}
+
+.app-form-action-button {
+  gap: 0.5rem;
 }
 
 @media (max-width: 768px) {
@@ -518,5 +567,8 @@
 
   .app-form-footer {
     bottom: 0.5rem;
+    opacity: 1;
+    width: fit-content;
+    align-self: center;
   }
 }

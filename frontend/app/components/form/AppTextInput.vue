@@ -15,6 +15,7 @@ const props = defineProps<{
   tip?: string;
   startIcon?: string;
   endIcon?: string;
+  errorMessage?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -45,18 +46,18 @@ const normalizedMask = computed<string|undefined>(() => {
   return unwrappedMask.replaceAll('#', '0');
 });
 
-const emitValue = (value: string): void => {
+function emitValue(value: string): void {
   emit('update', value);
   emit('update:value', value);
   emit('update:modelValue', value);
-};
+}
 
-const destroyMask = (): void => {
+function destroyMask(): void {
   maskInstance.value?.destroy();
   maskInstance.value = null;
-};
+}
 
-const updateMaskValue = (): void => {
+function updateMaskValue(): void {
   if (!maskInstance.value || !inputRef.value) {
     return;
   }
@@ -64,9 +65,9 @@ const updateMaskValue = (): void => {
   if (inputRef.value.value !== maskInstance.value.value) {
     maskInstance.value.updateValue();
   }
-};
+}
 
-const syncValue = (): void => {
+function syncValue(): void {
   if (maskInstance.value) {
     updateMaskValue();
 
@@ -78,9 +79,9 @@ const syncValue = (): void => {
   }
 
   inputValue.value = rawValue.value;
-};
+}
 
-const setupMask = (): void => {
+function setupMask(): void {
   destroyMask();
 
   if (!inputRef.value || !normalizedMask.value) {
@@ -97,20 +98,20 @@ const setupMask = (): void => {
   });
 
   syncValue();
-};
+}
 
-const handleMaskedInput = (): void => {
+function handleMaskedInput(): void {
   updateMaskValue();
   emitValue(maskInstance.value?.unmaskedValue ?? '');
-};
+}
 
-const handleInput = (event: Event): void => {
+function handleInput(event: Event): void {
   const target = event.target as HTMLInputElement;
   const value = target.value;
 
   inputValue.value = value;
   emitValue(value);
-};
+}
 
 watch(
   () => rawValue.value,
@@ -187,5 +188,9 @@ onBeforeUnmount(() => {
 
       <i v-if="endIcon" class="app-text-input-icon is-end" :class="endIcon"></i>
     </div>
+
+    <p v-if="errorMessage" class="app-form-error-message">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>

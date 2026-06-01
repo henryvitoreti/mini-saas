@@ -5,47 +5,25 @@ import AppSwitchInput from "@/components/form/AppSwitchInput.vue";
 import AppTextInput from "@/components/form/AppTextInput.vue";
 import AppTextareaInput from "@/components/form/AppTextareaInput.vue";
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
+import debounce from 'lodash/debounce';
+import { fetchIbgeCitiesByState, fetchIbgeStates, fetchViaCepAddress } from '@/services/external/address-lookup';
+import type { SelectOption } from '@/types/common/select';
+import type { CustomerForm } from '@/types/entities/customer';
 
-type SelectOption = {
-  label: string;
-  value: string;
-};
-
-type IbgeState = {
-  id: number;
-  sigla: string;
-  nome: string;
-};
-
-type IbgeCity = {
-  id: number;
-  nome: string;
-};
-
-type ViaCepAddress = {
-  erro?: boolean;
-  cep?: string;
-  logradouro?: string;
-  complemento?: string;
-  bairro?: string;
-  localidade?: string;
-  uf?: string;
-};
-
-const form = reactive({
-  name: '',
-  document: '',
-  email: '',
-  phone: '',
-  secondary_phone: '',
-  zip_code: '',
-  street: '',
-  number: '',
-  complement: '',
-  district: '',
-  city: '',
-  state: '',
-  notes: '',
+const form = reactive<CustomerForm>({
+  name: null,
+  document: null,
+  email: null,
+  phone: null,
+  secondary_phone: null,
+  zip_code: null,
+  street: null,
+  number: null,
+  complement: null,
+  district: null,
+  city: null,
+  state: null,
+  notes: null,
   is_active: true,
 });
 
@@ -53,18 +31,12 @@ const stateOptions = ref<SelectOption[]>([]);
 const cityOptions = ref<SelectOption[]>([]);
 const isLoadingStates = ref(false);
 const isLoadingCities = ref(false);
-const isLoadingZipCode = ref(false);
-let zipCodeSearchTimeout: ReturnType<typeof setTimeout> | undefined;
 
-const fetchStates = async (): Promise<void> => {
+async function fetchStates(): Promise<void> {
   isLoadingStates.value = true;
 
   try {
-    const states = await $fetch<IbgeState[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados', {
-      query: {
-        orderBy: 'nome',
-      },
-    });
+    const states = await fetchIbgeStates();
 
     stateOptions.value = states.map((state) => ({
       label: `${state.sigla} - ${state.nome}`,
@@ -73,9 +45,9 @@ const fetchStates = async (): Promise<void> => {
   } finally {
     isLoadingStates.value = false;
   }
-};
+}
 
-const fetchCities = async (state: string): Promise<void> => {
+async function fetchCities(state: string | null): Promise<void> {
   if (!state) {
     cityOptions.value = [];
     return;
@@ -84,11 +56,7 @@ const fetchCities = async (state: string): Promise<void> => {
   isLoadingCities.value = true;
 
   try {
-    const cities = await $fetch<IbgeCity[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${state}/municipios`, {
-      query: {
-        orderBy: 'nome',
-      },
-    });
+    const cities = await fetchIbgeCitiesByState(state);
 
     cityOptions.value = cities.map((city) => ({
       label: city.nome,
@@ -97,23 +65,32 @@ const fetchCities = async (state: string): Promise<void> => {
   } finally {
     isLoadingCities.value = false;
   }
-};
+}
 
-const updateState = async (state: string): Promise<void> => {
+async function updateState(state: string): Promise<void> {
   form.state = state;
-  form.city = '';
+  form.city = null;
   await fetchCities(state);
-};
+}
 
-const searchZipCode = async (zipCode: string): Promise<void> => {
-  if (zipCode.length !== 8) {
+function updateZipCode(zipCode: string): void {
+  form.zip_code = zipCode || null;
+  const normalizedZipCode = form.zip_code ?? '';
+
+  if (normalizedZipCode.length !== 8) {
     return;
   }
 
-  isLoadingZipCode.value = true;
+  searchZipCode(normalizedZipCode);
+}
 
+function updateNumber(value: string): void {
+  form.number = value || null;
+}
+
+const searchZipCode = debounce(async (zipCode: string): Promise<void> => {
   try {
-    const address = await $fetch<ViaCepAddress>(`https://viacep.com.br/ws/${zipCode}/json/`);
+    const address = await fetchViaCepAddress(zipCode);
 
     if (address.erro) {
       return;
@@ -131,23 +108,10 @@ const searchZipCode = async (zipCode: string): Promise<void> => {
     if (address.localidade) {
       form.city = address.localidade;
     }
-  } finally {
-    isLoadingZipCode.value = false;
+  } catch (error) {
+    console.error(error);
   }
-};
-
-watch(
-  () => form.zip_code,
-  (zipCode): void => {
-    if (zipCodeSearchTimeout) {
-      clearTimeout(zipCodeSearchTimeout);
-    }
-
-    zipCodeSearchTimeout = setTimeout(() => {
-      void searchZipCode(zipCode);
-    }, 350);
-  },
-);
+}, 1500);
 
 onMounted(() => {
   void fetchStates();
@@ -175,70 +139,72 @@ onMounted(() => {
         </div>
 
         <div class="app-form-card-body">
-          <div class="app-form-grid">
-            <AppTextInput
-                class="app-form-col-5"
-                name="name"
-                label="Nome"
-                start-icon="fa-solid fa-user"
-                required
-                :value="form.name"
-                @update:value="(value) => form.name = value"
-            />
+          <div class="row g-3">
+            <div class="col-12 col-md-5">
+              <AppTextInput
+                  name="name"
+                  label="Nome"
+                  required
+                  :value="form.name"
+                  @update:value="(value) => form.name = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-5"
-                name="email"
-                label="E-mail"
-                type="email"
-                start-icon="fa-solid fa-envelope"
-                required
-                :value="form.email"
-                @update:value="(value) => form.email = value"
-            />
+            <div class="col-12 col-sm-9 col-md-5">
+              <AppTextInput
+                  name="email"
+                  label="E-mail"
+                  type="email"
+                  required
+                  :value="form.email"
+                  @update:value="(value) => form.email = value"
+              />
+            </div>
 
-            <AppSwitchInput
-                class="app-form-col-2"
-                name="is_active"
-                label="Ativo"
-                required
-                :value="form.is_active"
-                @update:value="(value) => form.is_active = value"
-            />
+            <div class="col-12 col-sm-3 col-md-2">
+              <AppSwitchInput
+                  name="is_active"
+                  label="Ativo"
+                  required
+                  :value="form.is_active"
+                  @update:value="(value) => form.is_active = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-4"
-                name="document"
-                label="CPF"
-                mask="[###.###.###-##]"
-                placeholder="000.000.000-00"
-                required
-                :value="form.document"
-                @update:value="(value) => form.document = value"
-            />
+            <div class="col-12 col-lg-4">
+              <AppTextInput
+                  name="document"
+                  label="CPF"
+                  mask="[###.###.###-##]"
+                  placeholder="000.000.000-00"
+                  required
+                  :value="form.document"
+                  @update:value="(value) => form.document = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-4"
-                name="phone"
-                label="Telefone"
-                mask="[(##) #####-####]"
-                placeholder="(44) 98888-8888"
-                start-icon="fa-solid fa-phone"
-                required
-                :value="form.phone"
-                @update:value="(value) => form.phone = value"
-            />
+            <div class="col-12 col-sm-6 col-lg-4">
+              <AppTextInput
+                  name="phone"
+                  label="Telefone"
+                  mask="[(##) #####-####]"
+                  placeholder="(44) 98888-8888"
+                  required
+                  :value="form.phone"
+                  @update:value="(value) => form.phone = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-4"
-                name="secondary_phone"
-                label="Telefone Secundário"
-                mask="[(##) #####-####]"
-                placeholder="(44) 98888-8888"
-                start-icon="fa-solid fa-phone"
-                :value="form.secondary_phone"
-                @update:value="(value) => form.secondary_phone = value"
-            />
+            <div class="col-12 col-sm-6 col-lg-4">
+              <AppTextInput
+                  name="secondary_phone"
+                  label="Telefone Secundário"
+                  mask="[(##) #####-####]"
+                  placeholder="(44) 98888-8888"
+                  :value="form.secondary_phone"
+                  @update:value="(value) => form.secondary_phone = value"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -249,84 +215,89 @@ onMounted(() => {
             <h2 class="app-form-card-title">
               Endereço
             </h2>
-
-            <AppInfoTooltip text="O CEP preenche rua, bairro, cidade e estado quando encontrado." />
           </div>
         </div>
 
         <div class="app-form-card-body">
-          <div class="app-form-grid">
-            <AppTextInput
-                class="app-form-col-4"
-                name="zip_code"
-                label="CEP"
-                mask="[#####-###]"
-                placeholder="00000-000"
-                start-icon="fa-solid fa-location-dot"
-                :tip="isLoadingZipCode ? 'Buscando CEP...' : undefined"
-                required
-                :value="form.zip_code"
-                @update:value="(value) => form.zip_code = value"
-            />
+          <div class="row g-3">
+            <div class="col-12 col-lg-4">
+              <AppTextInput
+                  name="zip_code"
+                  label="CEP"
+                  mask="[#####-###]"
+                  placeholder="00000-000"
+                  start-icon="fa-solid fa-location-dot"
+                  required
+                  :value="form.zip_code"
+                  tip="Preenche rua, bairro, cidade e estado quando encontrado."
+                  @update:value="updateZipCode"
+              />
+            </div>
 
-            <AppSelect2Input
-                class="app-form-col-4"
-                name="state"
-                label="Estado"
-                placeholder="Selecione"
-                required
-                :disabled="isLoadingStates"
-                :options="stateOptions"
-                :value="form.state"
-                @update:value="updateState"
-            />
+            <div class="col-12 col-sm-6 col-lg-4">
+              <AppSelect2Input
+                  name="state"
+                  label="Estado"
+                  placeholder="Selecione"
+                  required
+                  :disabled="isLoadingStates"
+                  :options="stateOptions"
+                  :value="form.state"
+                  @update:value="updateState"
+              />
+            </div>
 
-            <AppSelect2Input
-                class="app-form-col-4"
-                name="city"
-                label="Cidade"
-                :placeholder="form.state ? 'Selecione' : 'Selecione um estado'"
-                required
-                :disabled="!form.state || isLoadingCities"
-                :options="cityOptions"
-                :value="form.city"
-                @update:value="(value) => form.city = value"
-            />
+            <div class="col-12 col-sm-6 col-lg-4">
+              <AppSelect2Input
+                  name="city"
+                  label="Cidade"
+                  :placeholder="form.state ? 'Selecione' : 'Selecione um estado'"
+                  required
+                  :disabled="!form.state || isLoadingCities"
+                  :options="cityOptions"
+                  :value="form.city"
+                  @update:value="(value) => form.city = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-5"
-                name="district"
-                label="Bairro"
-                required
-                :value="form.district"
-                @update:value="(value) => form.district = value"
-            />
+            <div class="col-12 col-lg-5">
+              <AppTextInput
+                  name="district"
+                  label="Bairro"
+                  required
+                  :value="form.district"
+                  @update:value="(value) => form.district = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-5"
-                name="street"
-                label="Rua"
-                required
-                :value="form.street"
-                @update:value="(value) => form.street = value"
-            />
+            <div class="col-12 col-sm-8 col-lg-5">
+              <AppTextInput
+                  name="street"
+                  label="Rua"
+                  required
+                  :value="form.street"
+                  @update:value="(value) => form.street = value"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-2"
-                name="number"
-                label="Número"
-                required
-                :value="form.number"
-                @update:value="(value) => form.number = value"
-            />
+            <div class="col-12 col-sm-4 col-lg-2">
+              <AppTextInput
+                  name="number"
+                  label="Número"
+                  mask="[############]"
+                  :value="form.number"
+                  @update:value="updateNumber"
+              />
+            </div>
 
-            <AppTextInput
-                class="app-form-col-12"
-                name="complement"
-                label="Complemento"
-                :value="form.complement"
-                @update:value="(value) => form.complement = value"
-            />
+            <div class="col-12">
+              <AppTextInput
+                  name="complement"
+                  label="Complemento"
+                  :value="form.complement"
+                  @update:value="(value) => form.complement = value"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -334,52 +305,36 @@ onMounted(() => {
       <section class="app-form-card">
         <div class="app-form-card-header">
           <h2 class="app-form-card-title">
-            Observações
+            Extra
           </h2>
         </div>
 
         <div class="app-form-card-body">
-          <AppTextareaInput
-              name="notes"
-              label="Observações"
-              placeholder="Informações complementares sobre o cliente"
-              :rows="5"
-              :value="form.notes"
-              @update:value="(value) => form.notes = value"
-          />
+          <div class="row g-3">
+            <div class="col-12">
+              <AppTextareaInput
+                  name="notes"
+                  label="Observações"
+                  placeholder="Informações complementares sobre o cliente"
+                  :rows="5"
+                  :value="form.notes"
+                  @update:value="(value) => form.notes = value"
+              />
+            </div>
+          </div>
         </div>
       </section>
     </div>
 
     <template #footer>
-      <NuxtLink to="/clientes" class="btn btn-secondary app-form-icon-button me-auto" aria-label="Voltar">
+      <NuxtLink to="/clientes" class="btn btn-secondary app-form-icon-button" aria-label="Voltar">
         <i class="fa-solid fa-angle-left" aria-hidden="true" />
       </NuxtLink>
 
-      <button class="btn btn-primary app-form-action-button" type="button">
+      <button class="btn btn-primary app-form-action-button save-button" type="button">
         <i class="fa-solid fa-floppy-disk" aria-hidden="true" />
         Salvar
       </button>
     </template>
   </AppFormContainer>
 </template>
-
-<style scoped>
-.app-form-icon-button,
-.app-form-action-button {
-  min-height: 2.375rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.app-form-icon-button {
-  width: 2.375rem;
-  height: 2.375rem;
-  padding: 0;
-}
-
-.app-form-action-button {
-  gap: 0.5rem;
-}
-</style>
