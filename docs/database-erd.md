@@ -1,30 +1,65 @@
-# 📊 ERD - Modelagem Inicial
+# ERD - Modelagem Inicial
+
+Este documento separa a modelagem em dois contextos:
+
+- **Banco base**: armazena informações globais da plataforma.
+- **Banco do tenant**: armazena os dados operacionais de cada oficina.
+
+## Banco base
 
 ```mermaid
 erDiagram
     TENANTS {
+        varchar id PK
+        boolean active
+        json data
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    DOMAINS {
+        int id PK
+        varchar domain UK
+        varchar tenant_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    PERMISSIONS {
         bigint id PK
         varchar name
         varchar slug UK
-        varchar domain UK
-        varchar database_name UK
+        varchar base_front_url
+        varchar base_api_url
+        boolean show_locked_routes
+        boolean allow_permission_request
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    TENANTS ||--o{ DOMAINS : "possui"
+```
+
+## Banco do tenant
+
+```mermaid
+erDiagram
+    ROLES {
+        bigint id PK
+        varchar name
+        varchar slug UK
+        text description
         boolean is_active
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at
     }
 
-    ROLES {
-        bigint id PK
-        varchar name
-        varchar slug UK
-        text description
-        boolean show_locked_routes
-        boolean allow_permission_request
-        boolean is_active
-        timestamp created_at
-        timestamp updated_at
-        timestamp deleted_at
+    PERMISSION_ROLE {
+        bigint role_id FK
+        bigint permission_id
     }
 
     USERS {
@@ -125,6 +160,7 @@ erDiagram
     }
 
     ROLES ||--o{ USERS : "possui"
+    ROLES ||--o{ PERMISSION_ROLE : "possui"
     CUSTOMERS ||--o{ WORK_ORDERS : "possui"
     VEHICLES ||--o{ WORK_ORDERS : "possui"
     USERS ||--o{ WORK_ORDERS : "responsavel"

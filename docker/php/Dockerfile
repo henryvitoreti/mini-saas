@@ -15,4 +15,7 @@ RUN pecl install pcov \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+RUN mkdir -p /tmp/.config/psysh \
+    && chmod -R 777 /tmp/.config
+
 WORKDIR /var/www/html
