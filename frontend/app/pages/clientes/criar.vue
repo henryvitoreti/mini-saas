@@ -47,7 +47,7 @@ async function fetchStates(): Promise<void> {
   }
 }
 
-async function fetchCities(state: string | null): Promise<void> {
+async function fetchCities(state: string|null): Promise<void> {
   if (!state) {
     cityOptions.value = [];
     return;

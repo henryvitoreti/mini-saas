@@ -1,4 +1,4 @@
-export type PaginatedResponse<T> = T[] | {
+export type PaginatedResponse<T> = T[]|{
   data?: T[];
   items?: T[];
   results?: T[];

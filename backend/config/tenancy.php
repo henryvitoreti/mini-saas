@@ -19,7 +19,6 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
-        'api.app.127.0.0.1.sslip.io',
     ],
 
     /**
@@ -195,7 +194,7 @@ return [
      * Parameters used by the tenants:seed command.
      */
     'seeder_parameters' => [
-        '--class' => 'DatabaseSeeder', // root seeder class
+        '--class' => Database\Seeders\DatabaseTenantSeeder::class,
         // '--force' => true, // This needs to be true to seed tenant databases in production
     ],
 ];

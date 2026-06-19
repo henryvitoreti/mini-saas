@@ -2,15 +2,15 @@
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 
 const props = defineProps<{
-  value?: string | number | null;
-  modelValue?: string | number | null;
+  value?: string|number|null;
+  modelValue?: string|number|null;
   name: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
   tip?: string;
   rows?: number;
-  errorMessage?: string | null;
+  errorMessage?: string|null;
 }>();
 
 const emit = defineEmits<{

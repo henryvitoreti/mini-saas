@@ -2,15 +2,15 @@
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 
 const props = withDefaults(defineProps<{
-  value?: boolean | null;
-  modelValue?: boolean | null;
+  value?: boolean|null;
+  modelValue?: boolean|null;
   name: string;
   label?: string;
   required?: boolean;
   disabled?: boolean;
   tip?: string;
   isDefaultLayout?: boolean;
-  errorMessage?: string | null;
+  errorMessage?: string|null;
 }>(), {
   isDefaultLayout: true,
 });

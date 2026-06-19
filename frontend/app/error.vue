@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getFullLogo } from '@/config/appLogos';
 import type { AppError, ErrorContent } from '@/types/ui/error';
 
 const props = defineProps<{
@@ -7,7 +8,9 @@ const props = defineProps<{
 
 onMounted((): void => {
   const storedTheme = localStorage.getItem('theme');
+  const isDarkTheme = useState<boolean>('theme-is-dark', () => false);
 
+  isDarkTheme.value = storedTheme === 'dark';
   document.documentElement.setAttribute('data-theme', storedTheme === 'dark' ? 'dark' : 'light');
 });
 
@@ -60,14 +63,8 @@ async function goHome(): Promise<void> {
   <main class="app-error-page">
     <section class="app-error-panel">
       <img
-          class="app-error-logo app-error-logo-light"
-          src="/images/full-logo-light.svg"
-          alt="Minski"
-      >
-
-      <img
-          class="app-error-logo app-error-logo-dark"
-          src="/images/full-logo-dark.svg"
+          class="app-error-logo"
+          :src="getFullLogo()"
           alt="Minski"
       >
 

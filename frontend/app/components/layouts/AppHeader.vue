@@ -3,16 +3,16 @@ const emit = defineEmits<{
   toggleSidebar: [];
 }>();
 
-const themeIsDark = useState<boolean>('theme-is-dark', () => false);
+const isDarkTheme = useState<boolean>('theme-is-dark', () => false);
 
 function applyTheme(): void {
-  document.documentElement.setAttribute('data-theme', themeIsDark.value ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', isDarkTheme.value ? 'dark' : 'light');
 }
 
 function toggleTheme(): void {
-  themeIsDark.value = !themeIsDark.value;
+  isDarkTheme.value = !isDarkTheme.value;
 
-  localStorage.setItem('theme', themeIsDark.value ? 'dark' : 'light');
+  localStorage.setItem('theme', isDarkTheme.value ? 'dark' : 'light');
 
   applyTheme();
 }
@@ -39,7 +39,7 @@ function toggleTheme(): void {
           type="button"
           @click="toggleTheme"
       >
-        <i :class="themeIsDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+        <i :class="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
       </button>
 
       <button class="app-user-button" type="button">

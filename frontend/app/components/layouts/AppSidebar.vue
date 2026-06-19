@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
+import { getLogo, getLogoIcon } from '@/config/appLogos';
 import { sidebarItems, type SidebarItem } from '@/config/sidebarItems';
 
 const props = defineProps<{
@@ -12,8 +13,8 @@ const emit = defineEmits<{
 
 const menus = reactive<SidebarItem[]>(sidebarItems);
 const route = useRoute();
+const auth = useAuth();
 
-const themeIsDark = useState<boolean>('theme-is-dark', () => false);
 const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
 const sidebarUsesCollapsedLayout = computed<boolean>(() => sidebarCollapsed.value && !props.sidebarOpen);
 
@@ -140,6 +141,12 @@ function closeMobileSidebar(): void {
   closeFlyout();
   emit('closeSidebar');
 }
+
+async function logout(): Promise<void> {
+  closeFlyout();
+  await auth.logout();
+  emit('closeSidebar');
+}
 </script>
 
 <template>
@@ -149,14 +156,14 @@ function closeMobileSidebar(): void {
         <img
             v-if="!sidebarUsesCollapsedLayout"
             class="app-sidebar-logo-full"
-            :src="themeIsDark ? '/images/logo-dark.svg' : '/images/logo-light.svg'"
+            :src="getLogo()"
             alt="Minski"
         >
 
         <img
             v-else
             class="app-sidebar-logo-icon"
-            :src="themeIsDark ? '/images/logo-icon-dark.svg' : '/images/logo-icon-light.svg'"
+            :src="getLogoIcon()"
             alt="Minski"
         >
       </NuxtLink>
@@ -311,6 +318,20 @@ function closeMobileSidebar(): void {
         </template>
       </template>
     </nav>
+
+    <div class="app-sidebar-footer">
+      <button
+          class="app-sidebar-link app-sidebar-logout"
+          type="button"
+          @click="logout"
+      >
+        <span class="app-sidebar-link-icon">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </span>
+
+        <span class="app-sidebar-link-label">Sair</span>
+      </button>
+    </div>
 
     <div
         v-if="sidebarUsesCollapsedLayout && activeFlyoutItem"

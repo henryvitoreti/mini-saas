@@ -5,7 +5,7 @@ export type TableColumn = {
   name: string;
   field: string;
   wrap?: boolean;
-  render?: (row: TableRow, value: unknown) => string | number | boolean | null;
+  render?: (row: TableRow, value: unknown) => string|number|boolean|null;
 };
 
 export type TablePagination = {
@@ -14,8 +14,8 @@ export type TablePagination = {
   last_page: number;
   per_page: number;
   total: number;
-  from: number | null;
-  to: number | null;
-  prev_page_url: string | null;
-  next_page_url: string | null;
+  from: number|null;
+  to: number|null;
+  prev_page_url: string|null;
+  next_page_url: string|null;
 };

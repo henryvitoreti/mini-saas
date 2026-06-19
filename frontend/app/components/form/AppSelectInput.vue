@@ -3,15 +3,15 @@ import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 import type { SelectOption } from '@/types/common/select';
 
 const props = withDefaults(defineProps<{
-  value?: string | number | null;
-  modelValue?: string | number | null;
+  value?: string|number|null;
+  modelValue?: string|number|null;
   name: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   tip?: string;
-  errorMessage?: string | null;
+  errorMessage?: string|null;
   options: SelectOption[];
 }>(), {
   options: () => [],
