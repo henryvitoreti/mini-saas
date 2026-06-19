@@ -5,6 +5,12 @@ export default defineNuxtConfig({
 
   pages: true,
 
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL ?? process.env.NUXT_PUBLIC_API_BASE ?? '/api',
+    },
+  },
+
   css: [
     '@fortawesome/fontawesome-free/css/all.min.css',
     '@/assets/scss/main.scss',

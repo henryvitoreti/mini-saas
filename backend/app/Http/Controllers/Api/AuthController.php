@@ -17,7 +17,12 @@ class AuthController extends ApiBaseController
     public function login(LoginRequest $request): JsonResponse
     {
         try {
-            $response = $this->loginService->login($request->input('email'), $request->input('password'));
+            $response = $this->loginService->login(
+                (string) $request->input('email'),
+                (string) $request->input('password'),
+                (bool) $request->input('remember_login')
+            );
+
             return $this->successResponse(data: $response);
         } catch (ValidationException $validationException) {
             return $this->errorResponse(
@@ -40,5 +45,10 @@ class AuthController extends ApiBaseController
             Log::error($exception->getMessage());
             return $this->errorResponse();
         }
+    }
+
+    public function check(): JsonResponse
+    {
+        return $this->successResponse(code: 204);
     }
 }

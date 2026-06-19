@@ -4,8 +4,8 @@ import type { InputMask } from 'imask';
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 
 const props = defineProps<{
-  value?: string | number | null;
-  modelValue?: string | number | null;
+  value?: string|number|null;
+  modelValue?: string|number|null;
   name: string;
   type?: string;
   label?: string;
@@ -15,7 +15,7 @@ const props = defineProps<{
   tip?: string;
   startIcon?: string;
   endIcon?: string;
-  errorMessage?: string | null;
+  errorMessage?: string|null;
 }>();
 
 const emit = defineEmits<{
@@ -25,9 +25,9 @@ const emit = defineEmits<{
 }>();
 
 const inputId = computed<string>(() => `app-text-input-${props.name}`);
-const inputRef = ref<HTMLInputElement | null>(null);
+const inputRef = ref<HTMLInputElement|null>(null);
 const inputValue = ref<string>('');
-const maskInstance = shallowRef<InputMask | null>(null);
+const maskInstance = shallowRef<InputMask|null>(null);
 
 const rawValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');

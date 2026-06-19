@@ -10,6 +10,8 @@ use JsonException;
 
 class LoginService
 {
+    private const int EXTENDED_TTL_MINUTES = 43200;
+
     public function __construct(private readonly UserRepository $userRepository)
     {}
 
@@ -17,8 +19,11 @@ class LoginService
      * @return array<string, mixed>
      * @throws ValidationException|JsonException
      */
-    public function login(string $email, string $password): array
+    public function login(string $email, string $password, bool $rememberLogin = false): array
     {
+        $ttl = $rememberLogin ? self::EXTENDED_TTL_MINUTES : auth()->factory()->getTTL();
+        auth()->factory()->setTTL($ttl);
+
         $token = auth()->attempt([
             'email' => $email,
             'password' => $password,
@@ -37,7 +42,7 @@ class LoginService
 
         return [
             'token_type' => 'Bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
+            'expires_in' => $ttl * 60,
             'access_token' => $token,
             'user' => new UserResource($user),
         ];

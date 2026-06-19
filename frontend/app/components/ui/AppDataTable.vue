@@ -33,7 +33,7 @@ const router = useRouter();
 
 const search = ref<string>('');
 const filtersOpen = ref<boolean>(false);
-const selectedRow = ref<TableRow | null>(null);
+const selectedRow = ref<TableRow|null>(null);
 
 const paginate = ref<TablePagination>({
   data: [

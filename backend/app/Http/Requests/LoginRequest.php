@@ -20,6 +20,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            'remember_login' => ['sometimes', 'boolean'],
         ];
     }
 }

@@ -6,8 +6,8 @@ import type { PaginatedResponse } from '@/types/common/pagination';
 import type { SelectOption } from '@/types/common/select';
 
 const props = withDefaults(defineProps<{
-  value?: string | number | null;
-  modelValue?: string | number | null;
+  value?: string|number|null;
+  modelValue?: string|number|null;
   name: string;
   label?: string;
   placeholder?: string;
@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
   pageParam?: string;
   perPageParam?: string;
   perPage?: number;
-  errorMessage?: string | null;
+  errorMessage?: string|null;
 }>(), {
   options: () => [],
   searchParam: 'search',
@@ -43,14 +43,14 @@ const currentPage = ref(1);
 const hasMorePages = ref(true);
 const isLoading = ref(false);
 const requestIndex = ref(0);
-const abortController = shallowRef<AbortController | null>(null);
-const intersectionObserver = shallowRef<IntersectionObserver | null>(null);
+const abortController = shallowRef<AbortController|null>(null);
+const intersectionObserver = shallowRef<IntersectionObserver|null>(null);
 
 const inputValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');
 });
 
-function emitValue(value: string | number | null): void {
+function emitValue(value: string|number|null): void {
   const normalizedValue = value === null ? '' : String(value);
 
   emit('update', normalizedValue);
@@ -66,7 +66,7 @@ function getResponseOptions(response: PaginatedResponse<SelectOption>): SelectOp
   return response.data ?? response.items ?? response.results ?? [];
 }
 
-function getResponseLastPage(response: PaginatedResponse<SelectOption>): number | undefined {
+function getResponseLastPage(response: PaginatedResponse<SelectOption>): number|undefined {
   if (Array.isArray(response)) {
     return undefined;
   }
@@ -150,7 +150,7 @@ function handleSearch(search: string): void {
   }
 }
 
-function setLoadMoreElement(element: Element | null): void {
+function setLoadMoreElement(element: Element|null): void {
   intersectionObserver.value?.disconnect();
 
   if (!element || typeof IntersectionObserver === 'undefined') {

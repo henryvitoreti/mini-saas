@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   value?: boolean|null;
   modelValue?: boolean|null;
   name: string;
@@ -9,11 +9,8 @@ const props = withDefaults(defineProps<{
   required?: boolean;
   disabled?: boolean;
   tip?: string;
-  isDefaultLayout?: boolean;
   errorMessage?: string|null;
-}>(), {
-  isDefaultLayout: true,
-});
+}>();
 
 const emit = defineEmits<{
   update: [value: boolean];
@@ -21,7 +18,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean];
 }>();
 
-const inputId = computed<string>(() => `app-switch-input-${props.name}`);
+const inputId = computed<string>(() => `app-checkbox-input-${props.name}`);
 
 const inputValue = computed<boolean>(() => {
   return Boolean(props.value ?? props.modelValue ?? false);
@@ -40,27 +37,12 @@ function handleChange(event: Event): void {
 </script>
 
 <template>
-  <div class="app-switch-input">
-    <div
-        class="app-switch-input-body"
-        :class="{
-          'is-default-layout': isDefaultLayout,
-          'is-inline-layout': !isDefaultLayout,
-        }"
-    >
-      <div v-if="isDefaultLayout && label" class="app-form-label-row">
-        <label class="app-form-label" :for="inputId">
-          {{ label }}
-          <span v-if="required" class="app-form-required">*</span>
-        </label>
-
-        <AppInfoTooltip v-if="tip" :text="tip" />
-      </div>
-
-      <label class="app-switch-control" :for="inputId">
+  <div class="app-checkbox-input">
+    <div class="app-checkbox-input-body">
+      <label class="app-checkbox-control" :for="inputId">
         <input
             :id="inputId"
-            class="app-switch-native"
+            class="app-checkbox-native"
             type="checkbox"
             :name="name"
             :checked="inputValue"
@@ -69,17 +51,17 @@ function handleChange(event: Event): void {
             @change="handleChange"
         >
 
-        <span class="app-switch-track">
-          <span class="app-switch-thumb"></span>
+        <span class="app-checkbox-box">
+          <i class="fa-solid fa-check app-checkbox-icon"></i>
         </span>
 
-        <span v-if="!isDefaultLayout && label" class="app-switch-label">
+        <span v-if="label" class="app-checkbox-label">
           {{ label }}
           <span v-if="required" class="app-form-required">*</span>
         </span>
       </label>
 
-      <AppInfoTooltip v-if="!isDefaultLayout && tip" :text="tip" />
+      <AppInfoTooltip v-if="tip" :text="tip" />
     </div>
 
     <p v-if="errorMessage" class="app-form-error-message">
