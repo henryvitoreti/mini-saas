@@ -5,7 +5,7 @@ export type AuthenticatedUser = {
   email: string;
   phone: string|null;
   is_active: boolean;
-  permissions?: string[];
+  permissions: string[]|null;
 };
 
 export type LoginResponse = {

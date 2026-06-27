@@ -627,6 +627,7 @@ input, select.form-select {
 
 .app-offcanvas-body {
   padding: 1rem;
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -634,10 +635,10 @@ input, select.form-select {
   background: var(--app-btn-primary-bg);
   border-color: var(--app-btn-primary-bg);
   color: var(--app-btn-primary-text);
+  font-weight: 600;
   &:hover {
     background: var(--app-primary);
     border-color: var(--app-primary);
-    color: var(--app-btn-primary-text);
   }
 }
 
@@ -766,6 +767,89 @@ input, select.form-select {
   justify-content: center;
   gap: 0.75rem;
   margin-top: 1.5rem;
+}
+
+.app-badge {
+  min-width: 85px;
+  min-height: 25px;
+  padding: 0.25rem 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  &.is-success {
+    color: #1f7a3a;
+    background: rgba(48, 168, 89, 0.13);
+    border-color: rgba(48, 168, 89, 0.24);
+  }
+  &.is-muted {
+    color: var(--app-text-muted);
+    background: var(--app-surface-soft);
+    border-color: var(--app-border);
+  }
+  &.is-primary {
+    color: var(--app-primary);
+    background: rgba(80, 143, 255, 0.12);
+    border-color: rgba(80, 143, 255, 0.24);
+  }
+  &.is-info {
+    color: #337d8f;
+    background: rgba(75, 160, 180, 0.14);
+    border-color: rgba(75, 160, 180, 0.28);
+  }
+}
+
+
+.app-tip,
+.app-input-tip {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  color: var(--app-text-muted);
+  font-size: 0.7rem;
+  cursor: help;
+  .app-tip-content {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    z-index: 1090;
+    width: max-content;
+    max-width: 240px;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--app-border);
+    border-radius: 6px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    text-align: left;
+    transform: translateX(-50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+  }
+  &:hover .app-tip-content,
+  &:focus .app-tip-content {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.app-input-tip {
+  width: 12px;
+  height: 12px;
+  font-size: 0.45rem;
+  align-self: start;
 }
 
 @media (max-width: 992px) {

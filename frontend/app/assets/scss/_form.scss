@@ -121,6 +121,8 @@
 }
 
 .app-text-input,
+.app-date-input,
+.app-datetime-input,
 .app-select-input,
 .app-select2-input,
 .app-textarea-input,
@@ -153,48 +155,6 @@
   font-size: 0.76rem;
   line-height: 1.25;
   word-break: break-all;
-}
-
-.app-form-tip {
-  width: 18px;
-  height: 18px;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--app-border);
-  border-radius: 999px;
-  color: var(--app-text-muted);
-  font-size: 0.65rem;
-  cursor: help;
-}
-
-.app-form-tip-content {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 8px);
-  z-index: 1090;
-  width: max-content;
-  max-width: 240px;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--app-border);
-  border-radius: 6px;
-  background: var(--app-surface);
-  color: var(--app-text);
-  font-size: 0.78rem;
-  line-height: 1.35;
-  text-align: left;
-  transform: translateX(-50%);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.15s ease, visibility 0.15s ease;
-}
-
-.app-form-tip:hover .app-form-tip-content,
-.app-form-tip:focus .app-form-tip-content {
-  opacity: 1;
-  visibility: visible;
 }
 
 .app-text-input-control {
@@ -265,6 +225,271 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.app-form-select.has-clear {
+  padding-right: 4.25rem;
+}
+
+.app-form-select .is-placeholder {
+  color: var(--app-text-muted);
+}
+
+.app-date-picker,
+.dp--main {
+  --dp-background-color: var(--app-surface);
+  --dp-text-color: var(--app-text);
+  --dp-hover-color: var(--app-surface-soft);
+  --dp-hover-text-color: var(--app-text);
+  --dp-hover-icon-color: var(--app-text);
+  --dp-primary-color: var(--app-primary);
+  --dp-primary-text-color: var(--app-btn-primary-text);
+  --dp-secondary-color: var(--app-text-muted);
+  --dp-border-color: var(--app-border);
+  --dp-menu-border-color: var(--app-border);
+  --dp-border-color-hover: var(--app-border);
+  --dp-border-color-focus: var(--app-primary);
+  --dp-primary-disabled-color: var(--app-surface-soft);
+  --dp-disabled-color: var(--app-surface-soft);
+  --dp-disabled-color-text: var(--app-text-muted);
+  --dp-icon-color: var(--app-text-muted);
+  --dp-range-between-dates-background-color: var(--app-surface-soft);
+  --dp-range-between-dates-text-color: var(--app-text);
+  --dp-range-between-border-color: var(--app-surface-soft);
+  --dp-highlight-color: var(--app-surface-soft);
+  --dp-border-radius: 6px;
+  --dp-cell-border-radius: 6px;
+  --dp-input-padding: 0.7rem 3rem 0.7rem 2.65rem;
+  --dp-input-icon-padding: 2.65rem;
+  --dp-font-size: 1rem;
+  width: 100%;
+}
+
+.app-date-picker {
+  width: 100%;
+}
+
+.app-date-picker .dp--input-wrap {
+  width: 100%;
+}
+
+.app-date-picker .dp--input-icon {
+  inset-inline-start: 0.85rem;
+}
+
+.app-date-picker .dp--clear-btn {
+  inset-inline-end: 0.85rem;
+}
+
+.app-date-picker .dp--input-icons {
+  padding: 0;
+}
+
+.app-date-picker .dp--input,
+.dp--input {
+  background: var(--app-surface);
+  min-height: 44px;
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.app-date-picker .dp--input::placeholder,
+.dp--input::placeholder {
+  color: var(--app-text-muted);
+  opacity: 1;
+}
+
+.app-date-picker .dp--input:focus,
+.app-date-picker .dp--input-focus,
+.dp--input:focus,
+.dp--input-focus {
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px rgba(80, 143, 255, 0.12);
+}
+
+.app-date-picker-icon {
+  color: var(--app-text-muted);
+  font-size: 0.88rem;
+}
+
+.app-date-picker-clear {
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  display: inline-flex;
+  justify-content: center;
+  background: transparent;
+  color: var(--app-text-muted);
+  line-height: 1;
+}
+
+.app-date-picker-clear:hover {
+  color: var(--app-text);
+}
+
+.app-date-picker-clear-icon {
+  width: 6px;
+  height: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6px;
+  line-height: 1;
+  --fa-width: 6px;
+}
+
+.app-date-picker .dp--menu,
+.dp--menu {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  box-shadow: var(--app-shadow);
+  color: var(--app-text);
+}
+
+.dp--calendar-header,
+.dp--calendar-item,
+.dp--month-year-select-base,
+.dp--selection-preview,
+.dp--action-row {
+  color: var(--app-text);
+}
+
+.dp--calendar-header-cell {
+  border-color: var(--app-border);
+}
+
+.dp--cell-offset,
+.dp--week-num {
+  color: var(--app-text-muted);
+}
+
+.dp--date-hoverable:hover,
+.dp--month-year-select-base:hover,
+.dp--inner-nav:hover,
+.dp--action-cancel:hover {
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+}
+
+.dp--range-between {
+  background: var(--app-surface-soft);
+  border-color: var(--app-surface-soft);
+  color: var(--app-text);
+}
+
+.dp--active,
+.dp--action-buttons .dp--action-select {
+  background: var(--app-primary);
+  color: var(--app-btn-primary-text);
+}
+
+.dp--today {
+  border-color: var(--app-primary);
+}
+
+.dp--action-cancel {
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.app-select-input-clear {
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  position: absolute;
+  top: 50%;
+  right: 2.55rem;
+  z-index: 2;
+  display: inline-flex;
+  justify-content: center;
+  background: transparent;
+  color: var(--app-text-muted);
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.app-select-input-clear:hover {
+  color: var(--app-text);
+}
+
+.app-select-input-clear-icon {
+  align-items: center;
+  width: 6px;
+  height: 6px;
+  display: inline-flex;
+  flex: 0 0 6px;
+  justify-content: center;
+  font-size: 6px;
+  line-height: 1;
+  --fa-width: 6px;
+}
+
+.app-select-hidden-input {
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-select-input-menu {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  right: 0;
+  z-index: 1120;
+  padding: 0.35rem;
+  border: 1px solid var(--app-border);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.app-select-input-option {
+  width: 100%;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: transparent;
+  color: var(--app-text);
+  text-align: left;
+  margin-top: 0.1rem;
+}
+
+.app-select-input-option:hover:not(:disabled) {
+  background: var(--app-surface-soft);
+}
+
+.app-select-input-option.is-selected {
+  background: rgba(80, 143, 255, 0.12);
+  color: var(--app-primary);
+  font-weight: 800;
+}
+
+.app-select-input-option:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.app-select-input-option span {
+  font-size: 0.85rem;
+}
+
+.app-select-input-option i {
+  color: var(--app-primary);
+  font-size: 0.75rem;
 }
 
 .app-form-select:disabled,
@@ -300,12 +525,19 @@
   min-height: 49px;
   padding: 0;
   border-color: var(--app-border);
+  border-radius: 6px;
   background: var(--app-surface);
   overflow: hidden;
 }
 
 .app-select2-input .vs__dropdown-toggle:hover {
   border-color: var(--app-border);
+}
+
+.app-select-input-control button.app-form-select.is-open, .app-select2-input .vs--open .vs__dropdown-toggle {
+  border-bottom-color: var(--app-border);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .app-select2-input .vs__selected-options {
@@ -346,13 +578,35 @@
 }
 
 .app-select2-input .vs__clear {
-  margin-right: 0.6rem;
+  align-items: center;
   color: var(--app-text-muted);
+  display: inline-flex;
+  flex: 0 0 6px;
+  font-size: 6px;
+  height: 6px;
+  justify-content: center;
+  line-height: 1;
+  margin-right: 0.6rem;
+  min-width: 6px;
   opacity: 1;
+  padding: 0;
+  width: 6px;
 }
 
 .app-select2-input .vs__clear:hover {
   color: var(--app-text);
+}
+
+.app-select2-clear-icon {
+  display: inline-flex;
+  flex: 0 0 6px;
+  align-items: center;
+  justify-content: center;
+  width: 6px;
+  height: 6px;
+  font-size: 6px;
+  line-height: 1;
+  --fa-width: 6px;
 }
 
 .app-select2-input .vs__search,
@@ -367,14 +621,71 @@
   -webkit-text-fill-color: var(--app-text);
 }
 
-.app-select2-input .vs__dropdown-menu {
+.app-select2-input .vs__dropdown-menu,
+.app-select2-dropdown-menu {
+  margin-top: 0;
+  padding: 0.35rem;
   border-color: var(--app-border);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
   background: var(--app-surface);
   box-shadow: var(--app-shadow);
 }
 
-.app-select2-input .vs__dropdown-option {
-  padding: 0.55rem 0.85rem;
+.app-select2-dropdown-menu {
+  position: absolute;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.app-select2-input .vs__dropdown-option,
+.app-select2-dropdown-menu .vs__dropdown-option {
+  margin-top: 0.1rem;
+  padding: 0 0.35rem;
+  border-radius: 6px;
+  color: var(--app-text);
+}
+
+span.app-select2-option span {
+  font-size: 0.85rem;
+}
+
+.app-select2-input .vs__dropdown-option:first-child,
+.app-select2-dropdown-menu .vs__dropdown-option:first-child {
+  margin-top: 0;
+}
+
+.app-select2-input .vs__dropdown-option--highlight,
+.app-select2-input .vs__dropdown-option--selected,
+.app-select2-dropdown-menu .vs__dropdown-option--highlight,
+.app-select2-dropdown-menu .vs__dropdown-option--selected {
+  background: transparent;
+  color: var(--app-text);
+}
+
+.app-select2-option {
+  min-height: 34px;
+  padding: 0 0.35rem;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  color: var(--app-text);
+}
+
+.app-select2-input .vs__dropdown-option--highlight .app-select2-option,
+.app-select2-input .vs__dropdown-option--selected .app-select2-option,
+.app-select2-dropdown-menu .vs__dropdown-option--highlight .app-select2-option,
+.app-select2-dropdown-menu .vs__dropdown-option--selected .app-select2-option {
+  background: rgba(80, 143, 255, 0.12);
+  color: var(--app-primary);
+}
+
+.app-select2-selected-option {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-select2-input .vs--disabled .vs__dropdown-toggle,
@@ -411,10 +722,7 @@
 }
 
 .app-form-input:focus,
-.app-form-select:focus,
-.app-form-textarea:focus,
-.app-select2-input .vs--open .vs__dropdown-toggle,
-.app-select2-input .vs--searching .vs__dropdown-toggle {
+.app-form-textarea:focus {
   outline: none;
   border-color: var(--app-primary);
   box-shadow: 0 0 0 3px rgba(80, 143, 255, 0.12);
@@ -477,6 +785,7 @@
       0 0 0 1000px var(--app-surface) inset,
       0 0 0 3px rgba(80, 143, 255, 0.12) !important;
   }
+
 }
 
 .app-switch-input {
@@ -650,6 +959,7 @@
   opacity: 0.6;
   width: fit-content;
   align-self: end;
+  z-index: 9999;
   &:hover {
     opacity: 1;
   }

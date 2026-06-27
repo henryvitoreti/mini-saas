@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
+import type { AppSwitchInputProps } from '@/types/ui/form';
 
-const props = withDefaults(defineProps<{
-  value?: boolean|null;
-  modelValue?: boolean|null;
-  name: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  tip?: string;
-  isDefaultLayout?: boolean;
-  errorMessage?: string|null;
-}>(), {
-  isDefaultLayout: true,
-});
+const props = withDefaults(
+  defineProps<AppSwitchInputProps>(),
+  {
+    required: false,
+    disabled: false,
+    isDefaultLayout: true,
+  },
+);
 
 const emit = defineEmits<{
   update: [value: boolean];
@@ -54,7 +50,7 @@ function handleChange(event: Event): void {
           <span v-if="required" class="app-form-required">*</span>
         </label>
 
-        <AppInfoTooltip v-if="tip" :text="tip" />
+        <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" />
       </div>
 
       <label class="app-switch-control" :for="inputId">

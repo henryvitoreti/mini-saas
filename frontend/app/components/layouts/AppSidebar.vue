@@ -2,10 +2,9 @@
 import { computed, reactive, ref } from 'vue';
 import { getLogo, getLogoIcon } from '@/config/appLogos';
 import { sidebarItems, type SidebarItem } from '@/config/sidebarItems';
+import type { AppSidebarProps } from '@/types/ui/layout';
 
-const props = defineProps<{
-  sidebarOpen: boolean;
-}>();
+const props = defineProps<AppSidebarProps>();
 
 const emit = defineEmits<{
   closeSidebar: [];
@@ -95,7 +94,7 @@ function clearCloseFlyoutTimeout(): void {
   }
 }
 
-function openFlyout(item: SidebarItem, event?: MouseEvent): void {
+function openFlyout(item: SidebarItem, event: MouseEvent|null = null): void {
   if (!sidebarUsesCollapsedLayout.value || !itemHasChildren(item) || isItemDisabled(item)) {
     return;
   }
@@ -123,7 +122,7 @@ function closeFlyout(): void {
   activeFlyoutMenu.value = null;
 }
 
-function handleMenuClick(item: SidebarItem, event?: MouseEvent): void {
+function handleMenuClick(item: SidebarItem, event: MouseEvent|null = null): void {
   if (isItemDisabled(item) || !itemHasChildren(item)) {
     return;
   }

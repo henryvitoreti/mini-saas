@@ -1,9 +1,9 @@
 export type ViaCepAddress = {
-  erro?: boolean;
-  cep?: string;
-  logradouro?: string;
-  complemento?: string;
-  bairro?: string;
-  localidade?: string;
-  uf?: string;
+  erro: boolean|null;
+  cep: string|null;
+  logradouro: string|null;
+  complemento: string|null;
+  bairro: string|null;
+  localidade: string|null;
+  uf: string|null;
 };
