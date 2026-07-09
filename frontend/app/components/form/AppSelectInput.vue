@@ -108,6 +108,7 @@ function clearSelection(): void {
           :name="name"
           :disabled="disabled"
           :aria-expanded="isOpen"
+          :aria-required="Boolean(required)"
           @click="toggleOptions"
           @keydown.esc="closeOptions()"
       >
@@ -129,7 +130,6 @@ function clearSelection(): void {
       <input
           :name="name"
           :value="inputValue"
-          :required="required"
           tabindex="-1"
           aria-hidden="true"
           class="app-select-hidden-input"

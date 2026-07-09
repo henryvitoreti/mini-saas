@@ -38,6 +38,18 @@ const columns: TableColumn[] = [
     showInDeleteModal: true,
   },
   {
+    label: 'Documento',
+    name: 'document',
+    field: 'document',
+    priority: 0,
+    sortable: null,
+    wrap: true,
+    render: null,
+    valueFormatter: null,
+    badgeClassResolver: null,
+    showInDeleteModal: true,
+  },
+  {
     label: 'E-mail',
     name: 'email',
     field: 'email',
@@ -89,7 +101,7 @@ const columns: TableColumn[] = [
     label: 'Criação',
     name: 'created_at',
     field: 'created_at',
-    priority: 1,
+    priority: 3,
     sortable: null,
     wrap: null,
     render: null,
@@ -126,6 +138,7 @@ function parseCustomerStatusFilter(value: string): boolean|null {
       title="Clientes"
       subtitle="Gerencie a base de clientes da oficina."
       :columns="columns"
+      :has-show="false"
       base-url="/clientes"
       base-api-url="/customers"
       entity-label="cliente"

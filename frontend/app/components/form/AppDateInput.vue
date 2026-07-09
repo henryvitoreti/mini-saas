@@ -13,9 +13,9 @@ type DatePickerModelValue = string|null|string[];
 type DatePickerRangeConfig = false|{ partialRange: boolean };
 type DatePickerInputAttrs = {
   name: string;
-  required: boolean;
   id: string;
   clearable: boolean;
+  'aria-required': boolean;
 };
 
 const datePickerFormats = { input: 'dd/MM/yyyy' };
@@ -43,9 +43,9 @@ const inputId = computed<string>(() => `app-date-input-${props.name}`);
 const datePickerInputAttrs = computed<DatePickerInputAttrs>(() => {
   return {
     name: props.name,
-    required: Boolean(props.required),
     id: inputId.value,
     clearable: !props.required,
+    'aria-required': Boolean(props.required),
   };
 });
 

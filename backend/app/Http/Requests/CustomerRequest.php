@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\Customer;
 use App\Support\Formatters\DateFormatter;
 use App\Support\Formatters\PersonalDataFormatter;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CustomerRequest extends FormRequest
@@ -28,9 +27,7 @@ class CustomerRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = $this->route('id');
-
-        return Customer::rules($id === null ? null : (int) $id, $this->input('type'));
+        return Customer::rules($this);
     }
 
     public function messages(): array
@@ -40,6 +37,7 @@ class CustomerRequest extends FormRequest
         if ($this->route('id')) {
             $response = [
                 'document.exists' => 'O documento informado não pertence ao cliente selecionado.',
+                'type.exists' => 'O tipo de pessoa não pode ser alterado.',
             ];
         }
 

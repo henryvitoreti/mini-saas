@@ -1,14 +1,18 @@
 import type { SelectOption } from '@/types/common/select';
+import {
+  CUSTOMER_TYPE_COMPANY,
+  CUSTOMER_TYPE_INDIVIDUAL,
+} from '@/types/entities/customer';
 
 export const customerTypeOptions: SelectOption[] = [
   {
     label: 'Pessoa Física',
-    value: 'individual',
+    value: CUSTOMER_TYPE_INDIVIDUAL,
     disabled: null,
   },
   {
     label: 'Pessoa Jurídica',
-    value: 'company',
+    value: CUSTOMER_TYPE_COMPANY,
     disabled: null,
   },
 ];
@@ -40,7 +44,7 @@ export function getCustomerTypeLabel(value: unknown): string {
 }
 
 export function getCustomerTypeBadgeClass(value: unknown): string {
-  return value === 'company' ? 'is-info' : 'is-primary';
+  return value === CUSTOMER_TYPE_COMPANY ? 'is-info' : 'is-primary';
 }
 
 function normalizeCustomerStatus(value: unknown): boolean|null {

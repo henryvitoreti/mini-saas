@@ -95,7 +95,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Carlos Henrique Lima',
-                'document' => '87418896031',
+                'document' => '87418896069',
                 'email' => 'carlos.lima@email.com',
                 'type' => PersonType::INDIVIDUAL->value,
                 'birth_date' => '1982-02-10',
@@ -115,7 +115,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Fernanda Costa',
-                'document' => '03350352070',
+                'document' => '03350352057',
                 'email' => 'fernanda.costa@email.com',
                 'type' => PersonType::INDIVIDUAL->value,
                 'birth_date' => null,
@@ -135,7 +135,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Roberto Almeida',
-                'document' => '31372030051',
+                'document' => '31372030077',
                 'email' => 'roberto.almeida@email.com',
                 'type' => PersonType::INDIVIDUAL->value,
                 'birth_date' => '1979-07-19',
@@ -155,7 +155,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Juliana Pereira',
-                'document' => '72890064097',
+                'document' => '72890064026',
                 'email' => 'juliana.pereira@email.com',
                 'type' => PersonType::INDIVIDUAL->value,
                 'birth_date' => '1992-12-01',
@@ -175,7 +175,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Rafael Mendes',
-                'document' => '24750547008',
+                'document' => '24750547000',
                 'email' => 'rafael.mendes@email.com',
                 'type' => PersonType::INDIVIDUAL->value,
                 'birth_date' => null,
@@ -195,7 +195,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Patrícia Rocha',
-                'document' => '97070885052',
+                'document' => '97070885083',
                 'email' => 'patricia.rocha@email.com',
                 'type' => PersonType::INDIVIDUAL->value,
                 'birth_date' => '1986-05-27',
@@ -275,7 +275,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Garagem Premium Serviços Automotivos',
-                'document' => '18781203000192',
+                'document' => '18781203000128',
                 'email' => 'atendimento@garagempremium.com.br',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,
@@ -295,7 +295,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Mecânica Avenida Ltda',
-                'document' => '30735328000132',
+                'document' => '30735328000117',
                 'email' => 'mecanicaavenida@email.com',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,
@@ -315,7 +315,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Auto Center Brasil Ltda',
-                'document' => '33583931000130',
+                'document' => '33583931000119',
                 'email' => 'contato@autocenterbrasil.com.br',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,
@@ -335,7 +335,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Peças e Motores Catarinense LTDA',
-                'document' => '47752532000131',
+                'document' => '47752532000149',
                 'email' => 'vendas@pmcatarinense.com.br',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,
@@ -355,7 +355,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Rodasul Comércio de Pneus Ltda',
-                'document' => '59934755000190',
+                'document' => '59934755000106',
                 'email' => 'financeiro@rodasul.com.br',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,
@@ -375,7 +375,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Sul Diesel Manutenção Ltda',
-                'document' => '75168469000180',
+                'document' => '75168469000133',
                 'email' => 'contato@suldiesel.com.br',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,
@@ -395,7 +395,7 @@ class CustomerSeeder extends Seeder
             ],
             [
                 'name' => 'Litoral Auto Serviços Ltda',
-                'document' => '86874456000168',
+                'document' => '86874456000104',
                 'email' => 'litoralauto@email.com',
                 'type' => PersonType::COMPANY->value,
                 'birth_date' => null,

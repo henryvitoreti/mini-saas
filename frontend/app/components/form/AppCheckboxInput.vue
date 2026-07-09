@@ -44,8 +44,8 @@ function handleChange(event: Event): void {
             type="checkbox"
             :name="name"
             :checked="inputValue"
-            :required="required"
             :disabled="disabled"
+            :aria-required="Boolean(required)"
             @change="handleChange"
         >
 

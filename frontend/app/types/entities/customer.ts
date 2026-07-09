@@ -1,6 +1,9 @@
 import type { TableFilters } from '@/types/ui/table';
 
-export type CustomerType = 'individual'|'company';
+export const CUSTOMER_TYPE_INDIVIDUAL = 'individual';
+export const CUSTOMER_TYPE_COMPANY = 'company';
+
+export type CustomerType = typeof CUSTOMER_TYPE_INDIVIDUAL|typeof CUSTOMER_TYPE_COMPANY;
 
 export type Customer = {
   [key: string]: unknown;

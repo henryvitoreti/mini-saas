@@ -50,8 +50,8 @@ function handleInput(event: Event): void {
         :name="name"
         :value="inputValue"
         :placeholder="placeholder"
-        :required="required"
         :rows="rows ?? 4"
+        :aria-required="Boolean(required)"
         @input="handleInput"
     ></textarea>
 

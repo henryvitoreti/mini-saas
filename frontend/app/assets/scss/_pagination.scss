@@ -42,6 +42,10 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
+  .app-data-table-toolbar-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
 }
 
 .app-data-table-search {
@@ -91,78 +95,6 @@
 .app-data-table-icon-button:hover {
   color: var(--app-primary);
   border-color: var(--app-primary);
-}
-
-.app-data-table-limit {
-  position: relative;
-  flex: 0 0 auto;
-}
-
-.app-data-table-limit-menu {
-  position: absolute;
-  top: calc(100% + 0.35rem);
-  right: 0;
-  min-width: 84px;
-  padding: 0.35rem;
-  border: 1px solid var(--app-border);
-  border-radius: 10px;
-  background: var(--app-surface);
-  box-shadow: var(--app-shadow);
-  z-index: 1120;
-}
-
-.app-data-table-limit-current {
-  position: absolute;
-  right: -0.35rem;
-  bottom: -0.35rem;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--app-border);
-  border-radius: 999px;
-  background: var(--app-surface-soft);
-  color: var(--app-text);
-  font-size: 0.68rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.app-data-table-limit-option {
-  width: 100%;
-  min-height: 34px;
-  padding: 0.4rem 0.55rem;
-  border: 0;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  background: transparent;
-  color: var(--app-text);
-  font-size: 0.9rem;
-  text-align: left;
-}
-
-.app-data-table-limit-option:hover {
-  background: var(--app-surface-soft);
-}
-
-.app-data-table-limit-option.is-selected {
-  background: rgba(80, 143, 255, 0.12);
-  color: var(--app-primary);
-  font-weight: 800;
-}
-
-.app-data-table-limit-option i {
-  color: var(--app-text-muted);
-  font-size: 0.75rem;
-}
-
-.app-data-table-limit-option.is-selected i {
-  color: var(--app-primary);
 }
 
 .app-data-table-filter-count {
@@ -510,7 +442,18 @@
   }
 
   .app-data-table-toolbar {
+    flex-direction: column;
     align-items: stretch;
+  }
+
+  .app-data-table-toolbar .app-data-table-toolbar-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .app-data-table-search {
+    width: 100%;
+    flex: 0 0 auto;
   }
 
   .app-data-table-title {
@@ -519,6 +462,10 @@
 
   .app-data-table-footer {
     justify-content: flex-start;
+  }
+
+  .app-table-mobile-hidden {
+    display: none;
   }
 
   .app-pagination {

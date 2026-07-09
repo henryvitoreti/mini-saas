@@ -3,18 +3,31 @@ import AppFormContainer from '@/components/form/AppFormContainer.vue';
 import CustomerFields from '@/components/customers/fields.vue';
 import type { Breadcrumb } from '@/types/common/navigation';
 
+definePageMeta({
+  validate(route): boolean {
+    const routeId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+    const id = Number(routeId);
+
+    return Number.isInteger(id) && id > 0;
+  },
+});
+
+const route = useRoute();
+const routeId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+const id = Number(routeId);
+
 const breadcrumbs: Breadcrumb[] = [
   { label: 'Clientes', to: '/clientes' },
-  { label: 'Criar cliente', to: null },
+  { label: 'Editar cliente', to: null },
 ];
 </script>
 
 <template>
   <AppFormContainer
-      title="Criar cliente"
+      title="Editar cliente"
       :breadcrumbs="breadcrumbs"
   >
-    <CustomerFields />
+    <CustomerFields :id="id" />
 
     <template #footer>
       <NuxtLink to="/clientes" class="btn btn-secondary app-form-icon-button" aria-label="Voltar">

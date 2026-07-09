@@ -242,6 +242,7 @@ onBeforeUnmount(() => {
         :disabled="disabled"
         :loading="isLoading"
         :clearable="true"
+        :aria-required="Boolean(required)"
         :components="selectComponents"
         :filterable="!usesApi"
         :append-to-body="true"
@@ -285,7 +286,6 @@ onBeforeUnmount(() => {
         class="app-select2-required-input"
         :name="name"
         :value="inputValue"
-        :required="required"
         tabindex="-1"
         aria-hidden="true"
     >

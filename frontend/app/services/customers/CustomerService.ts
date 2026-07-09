@@ -1,5 +1,6 @@
 import { apiHttpClient, type ApiResponse } from '@/services/api/http-client';
 import type { Customer, CustomerListParams } from '@/types/entities/customer';
+import type { FormPayload } from '@/types/forms/form';
 import type { TablePagination } from '@/types/ui/table';
 
 type CustomerListResponse = {
@@ -42,7 +43,22 @@ export const CustomerService = {
     };
   },
 
-  async delete(id: number|string): Promise<void> {
+  async show(id: number): Promise<Customer> {
+    const response = await apiHttpClient.get<ApiResponse<Customer>>(`/customers/${id}`);
+    return response.data;
+  },
+
+  async create(payload: FormPayload): Promise<Customer> {
+    const response = await apiHttpClient.post<ApiResponse<Customer>>('/customers', payload);
+    return response.data;
+  },
+
+  async update(id: number, payload: FormPayload): Promise<Customer> {
+    const response = await apiHttpClient.put<ApiResponse<Customer>>(`/customers/${id}`, payload);
+    return response.data;
+  },
+
+  async delete(id: number): Promise<void> {
     await apiHttpClient.delete<ApiResponse<[]>>(`/customers/${id}`);
   },
 };

@@ -2,8 +2,14 @@
 import debounce from 'lodash/debounce';
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import AppDialog from '@/components/ui/AppDialog.vue';
+import AppIconDropdown from '@/components/ui/AppIconDropdown.vue';
 import { apiHttpClient } from '@/services/api/http-client';
 import type { ApiResponse } from '@/types/api/http';
+import type {
+  AppIconDropdownOption,
+  AppIconDropdownOptionValue,
+} from '@/types/ui/components';
 import type {
   AppDataTableFilterSlotProps,
   AppDataTableProps,
@@ -17,6 +23,12 @@ import type {
   TableRow,
   TableSortOrder,
 } from '@/types/ui/table';
+import {
+  buildTableExportBlob,
+  type TableExportColumn,
+  type TableExportFormat,
+  type TableExportRecord,
+} from '@/utils/table-export';
 import { capitalizeFirstLetter } from '@/utils/text-format';
 
 type AppDataTableListResponse = {
@@ -38,8 +50,24 @@ type AppDataTableStorage = {
   limit: number;
 };
 
+type AppDataTableExportData = {
+  rows: TableRow[];
+  total: number|null;
+};
+
 const DATA_TABLE_STORAGE_TTL = 60 * 60 * 1000;
 const DATA_TABLE_FETCH_DEBOUNCE_DELAY = 400;
+const DATA_TABLE_EXPORT_LIMIT = 1000;
+const exportDropdownOptions: AppIconDropdownOption[] = [
+  {
+    title: 'XLS',
+    value: 'xls',
+  },
+  {
+    title: 'PDF',
+    value: 'pdf',
+  },
+];
 
 const props = withDefaults(
   defineProps<AppDataTableProps>(),
@@ -74,10 +102,12 @@ const toast = useAppToast();
 const localSearch = ref<string>('');
 const filtersOpen = ref<boolean>(false);
 const limitSelectorOpen = ref<boolean>(false);
+const exportMenuOpen = ref<boolean>(false);
 const selectedRow = ref<TableRow|null>(null);
 const rowToDelete = ref<TableRow|null>(null);
 const isLoading = ref<boolean>(false);
 const isDeleting = ref<boolean>(false);
+const isExporting = ref<boolean>(false);
 const page = ref<number>(1);
 const limit = ref<number>(props.defaultLimit ?? 20);
 const sortBy = ref<string>(props.defaultSortBy ?? 'id');
@@ -96,6 +126,13 @@ const canShowFilters = computed<boolean>(() => {
 
 const availableLimitOptions = computed<number[]>(() => {
   return props.limitOptions ?? [20];
+});
+
+const limitDropdownOptions = computed<AppIconDropdownOption[]>(() => {
+  return availableLimitOptions.value.map((option: number): AppIconDropdownOption => ({
+    title: String(option),
+    value: option,
+  }));
 });
 
 const activeEntityLabel = computed<string>(() => {
@@ -162,6 +199,7 @@ watch(
 
 watch(localSearch, (): void => {
   page.value = 1;
+  exportMenuOpen.value = false;
   clearSelectedRow();
   debouncedFetchRows();
 });
@@ -339,6 +377,14 @@ function buildParams(): Record<string, string|number|boolean> {
   return normalizeParams(params);
 }
 
+function buildExportParams(): Record<string, string|number|boolean> {
+  return {
+    ...buildParams(),
+    page: 1,
+    limit: DATA_TABLE_EXPORT_LIMIT,
+  };
+}
+
 function normalizePagination(response: AppDataTableListResponse): TablePagination {
   return {
     data: response.items ?? response.data ?? [],
@@ -350,6 +396,88 @@ function normalizePagination(response: AppDataTableListResponse): TablePaginatio
     to: response.to,
     prev_page_url: response.prev_page_url,
     next_page_url: response.next_page_url,
+  };
+}
+
+function getExportRows(response: AppDataTableListResponse): TableRow[] {
+  return response.items ?? response.data ?? [];
+}
+
+function getExportFileBaseName(): string {
+  const fallbackName = 'registros';
+  const normalizedName = activeEntityPluralLabel.value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return normalizedName || fallbackName;
+}
+
+function getExportFileName(format: TableExportFormat): string {
+  const date = new Date().toISOString().slice(0, 10);
+
+  return `${getExportFileBaseName()}-${date}.${format}`;
+}
+
+function getExportColumns(): TableExportColumn[] {
+  return props.columns.map((column: TableColumn): TableExportColumn => ({
+    name: column.name,
+    label: column.label,
+  }));
+}
+
+function getExportRecords(rows: TableRow[]): TableExportRecord[] {
+  return rows.map((row: TableRow): TableExportRecord => {
+    const record: TableExportRecord = {};
+
+    props.columns.forEach((column: TableColumn): void => {
+      record[column.name] = getColumnDisplayValue(row, column);
+    });
+
+    return record;
+  });
+}
+
+function downloadBlob(blob: Blob, fileName: string): void {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.setTimeout((): void => {
+    URL.revokeObjectURL(url);
+  }, 1000);
+}
+
+function buildExportBlob(format: TableExportFormat, rows: TableRow[]): Blob {
+  return buildTableExportBlob(
+    format,
+    getExportColumns(),
+    getExportRecords(rows),
+    props.title ?? activeEntityPluralLabel.value,
+    DATA_TABLE_EXPORT_LIMIT,
+  );
+}
+
+async function fetchExportData(): Promise<AppDataTableExportData> {
+  const response = await apiHttpClient.get<ApiResponse<AppDataTableListResponse>>(props.baseApiUrl, {
+    query: buildExportParams(),
+    showGlobalLoading: false,
+  });
+
+  return {
+    rows: getExportRows(response.data),
+    total: response.data.total,
   };
 }
 
@@ -419,6 +547,7 @@ function getCellClass(column: TableColumn): string[] {
   return [
     column.wrap ? 'app-table-cell-wrap' : 'app-table-cell-nowrap',
     `app-table-priority-${column.priority ?? 0}`,
+    (column.priority ?? 0) >= 2 ? 'app-table-mobile-hidden' : '',
   ];
 }
 
@@ -435,6 +564,8 @@ function isSelectedRow(row: TableRow): boolean {
 }
 
 function selectRow(row: TableRow): void {
+  exportMenuOpen.value = false;
+
   if (isSelectedRow(row)) {
     selectedRow.value = null;
 
@@ -449,6 +580,8 @@ function clearSelectedRow(): void {
 }
 
 function openFilters(): void {
+  exportMenuOpen.value = false;
+  limitSelectorOpen.value = false;
   filtersOpen.value = true;
 }
 
@@ -462,6 +595,7 @@ function closeFilters(shouldRestoreFilters = false): void {
 
 function applyFilters(): void {
   cancelDebouncedFetchRows();
+  exportMenuOpen.value = false;
   closeFilters();
   copyFilterValues(appliedFilterValues, filterValues);
   page.value = 1;
@@ -525,6 +659,7 @@ function changePage(nextPage: number): void {
   }
 
   cancelDebouncedFetchRows();
+  exportMenuOpen.value = false;
   page.value = nextPage;
   clearSelectedRow();
   void fetchRows();
@@ -538,6 +673,7 @@ function changeSort(column: TableColumn): void {
   order.value = sortBy.value === column.field && order.value === 'DESC' ? 'ASC' : 'DESC';
   sortBy.value = column.field;
   page.value = 1;
+  exportMenuOpen.value = false;
   clearSelectedRow();
   debouncedFetchRows();
 }
@@ -545,6 +681,7 @@ function changeSort(column: TableColumn): void {
 function changeLimit(nextLimit: number): void {
   cancelDebouncedFetchRows();
   limitSelectorOpen.value = false;
+  exportMenuOpen.value = false;
   limit.value = nextLimit;
   page.value = 1;
   persistSettings();
@@ -553,11 +690,68 @@ function changeLimit(nextLimit: number): void {
 }
 
 function toggleLimitSelector(): void {
+  exportMenuOpen.value = false;
   limitSelectorOpen.value = !limitSelectorOpen.value;
+}
+
+function toggleExportMenu(): void {
+  if (isExporting.value) {
+    return;
+  }
+
+  limitSelectorOpen.value = false;
+  exportMenuOpen.value = !exportMenuOpen.value;
+}
+
+function isTableExportFormat(value: AppIconDropdownOptionValue): value is TableExportFormat {
+  return value === 'xls' || value === 'pdf';
+}
+
+function handleExportSelect(value: AppIconDropdownOptionValue): void {
+  if (!isTableExportFormat(value)) {
+    return;
+  }
+
+  void exportRows(value);
+}
+
+function handleLimitSelect(value: AppIconDropdownOptionValue): void {
+  if (typeof value !== 'number') {
+    return;
+  }
+
+  changeLimit(value);
+}
+
+async function exportRows(format: TableExportFormat): Promise<void> {
+  if (isExporting.value) {
+    return;
+  }
+
+  exportMenuOpen.value = false;
+  isExporting.value = true;
+
+  try {
+    const exportData = await fetchExportData();
+    const blob = buildExportBlob(format, exportData.rows);
+
+    downloadBlob(blob, getExportFileName(format));
+
+    if (exportData.total !== null && exportData.total > DATA_TABLE_EXPORT_LIMIT) {
+      toast.warning(`Exportação limitada aos primeiros ${DATA_TABLE_EXPORT_LIMIT} registros.`);
+    }
+
+    toast.success('Exportação gerada com sucesso.');
+  } catch (error) {
+    toast.error(getErrorMessage(error, `Não foi possível exportar os ${activeEntityPluralLabel.value}.`));
+  } finally {
+    isExporting.value = false;
+  }
 }
 
 function refreshRows(): void {
   cancelDebouncedFetchRows();
+  exportMenuOpen.value = false;
   page.value = 1;
   clearSelectedRow();
   void fetchRows();
@@ -599,57 +793,53 @@ onBeforeUnmount((): void => {
         <input v-model="localSearch" type="text" :placeholder="searchPlaceholder">
       </div>
 
-      <button
-          v-if="hasSearch"
-          class="btn app-data-table-icon-button"
-          type="button"
-          title="Atualizar"
-          aria-label="Atualizar listagem"
-          :disabled="isLoading"
-          @click="refreshRows"
-      >
-        <i class="fa-solid fa-arrows-rotate"></i>
-      </button>
-
-      <div v-if="hasLimitSelector" class="app-data-table-limit">
+      <div class="app-data-table-toolbar-actions">
         <button
+            v-if="hasSearch"
             class="btn app-data-table-icon-button"
             type="button"
-            title="Registros por página"
-            :aria-expanded="limitSelectorOpen"
-            @click="toggleLimitSelector"
+            title="Atualizar"
+            aria-label="Atualizar listagem"
+            :disabled="isLoading"
+            @click="refreshRows"
         >
-          <i class="fa-solid fa-list-ol"></i>
-          <span class="app-data-table-limit-current">{{ limit }}</span>
+          <i class="fa-solid fa-arrows-rotate"></i>
         </button>
 
-        <div v-if="limitSelectorOpen" class="app-data-table-limit-menu">
-          <button
-              v-for="option in availableLimitOptions"
-              :key="option"
-              class="app-data-table-limit-option"
-              :class="{ 'is-selected': option === limit }"
-              type="button"
-              @click="changeLimit(option)"
-          >
-            <span>{{ option }}</span>
-            <i v-if="option === limit" class="fa-solid fa-check"></i>
-          </button>
-        </div>
-      </div>
+        <AppIconDropdown
+            :icon="isExporting ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-file-export'"
+            title="Exportar"
+            :is-open="exportMenuOpen"
+            :disabled="isExporting"
+            :options="exportDropdownOptions"
+            @toggle="toggleExportMenu"
+            @select="handleExportSelect"
+        />
 
-      <button
-          v-if="canShowFilters"
-          class="btn app-data-table-icon-button app-data-table-filter-button"
-          type="button"
-          title="Filtros"
-          @click="openFilters"
-      >
-        <i class="fa-solid fa-filter"></i>
-        <span v-if="activeAppliedFiltersCount > 0" class="app-data-table-filter-count">
-          {{ getFilterCountLabel(activeAppliedFiltersCount) }}
-        </span>
-      </button>
+        <AppIconDropdown
+            v-if="hasLimitSelector"
+            icon="fa-solid fa-list-ol"
+            title="Registros por página"
+            :is-open="limitSelectorOpen"
+            :options="limitDropdownOptions"
+            :selected-value="limit"
+            @toggle="toggleLimitSelector"
+            @select="handleLimitSelect"
+        />
+
+        <button
+            v-if="canShowFilters"
+            class="btn app-data-table-icon-button app-data-table-filter-button"
+            type="button"
+            title="Filtros"
+            @click="openFilters"
+        >
+          <i class="fa-solid fa-filter"></i>
+          <span v-if="activeAppliedFiltersCount > 0" class="app-data-table-filter-count">
+            {{ getFilterCountLabel(activeAppliedFiltersCount) }}
+          </span>
+        </button>
+      </div>
     </div>
 
     <div class="app-data-table-card">

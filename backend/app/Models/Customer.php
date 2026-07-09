@@ -8,6 +8,7 @@ use App\Support\Formatters\DateFormatter;
 use App\Support\Formatters\PersonalDataFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class Customer extends Model
@@ -47,29 +48,20 @@ class Customer extends Model
         ];
     }
 
-    public static function rules(int|null $id = null, PersonType|string|null $type = null): array
+    public static function rules(Request $request): array
     {
-        $type = $type ?? PersonType::INDIVIDUAL;
-        $documentUniqueRule = Rule::unique('customers', 'document')->whereNull('deleted_at');
-        $emailUniqueRule = Rule::unique('customers', 'email')->whereNull('deleted_at');
-        $documentOwnerRule = null;
+        $id = $request->route('id');
+        $type = $request->input('type', PersonType::INDIVIDUAL);
 
-        if ($id !== null) {
-            $documentOwnerRule = Rule::exists('customers', 'document')
-                ->where('id', $id)
-                ->whereNull('deleted_at');
-            $emailUniqueRule->ignore($id);
-        }
+        $documentUniqueRule = Rule::unique('customers', 'document')
+            ->when(isset($id), fn ($q) => $q->ignore($id))->whereNull('deleted_at');
+
+        $emailUniqueRule = Rule::unique('customers', 'email')
+            ->when(isset($id), fn ($q) => $q->ignore($id))->whereNull('deleted_at');
 
         return [
             'name' => ['required', 'string', 'max:60'],
-            'document' => array_values(array_filter([
-                'required',
-                'min:11',
-                'max:14',
-                new ValidateDocument($type),
-                $documentOwnerRule ?? $documentUniqueRule,
-            ])),
+            'document' => ['required', 'min:11', 'max:14', new ValidateDocument($type), $documentUniqueRule],
             'email' => ['required', 'email', 'max:60', $emailUniqueRule],
             'type' => ['required', Rule::in([PersonType::INDIVIDUAL->value, PersonType::COMPANY->value])],
             'birth_date' => ['nullable', 'date'],
@@ -77,8 +69,8 @@ class Customer extends Model
             'secondary_phone' => ['nullable', 'min:10', 'max:11'],
             'zip_code' => ['required', 'size:8'],
             'street' => ['required', 'string', 'max:100'],
-            'number' => ['required_without:complement', 'string', 'max:6'],
-            'complement' => ['required_without:number', 'string', 'max:200'],
+            'number' => ['nullable', 'required_without:complement', 'string', 'max:6'],
+            'complement' => ['nullable', 'required_without:number', 'string', 'max:200'],
             'district' => ['required', 'string', 'max:60'],
             'city' => ['required', 'string', 'max:75'],
             'state' => ['required', 'string', 'max:75'],

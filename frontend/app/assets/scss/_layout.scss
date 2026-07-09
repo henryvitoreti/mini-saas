@@ -852,6 +852,84 @@ input, select.form-select {
   align-self: start;
 }
 
+.app-icon-dropdown {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.app-icon-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 84px;
+  padding: 0.35rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  z-index: 1120;
+}
+
+.app-icon-dropdown-badge {
+  position: absolute;
+  right: -0.35rem;
+  bottom: -0.35rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.app-icon-dropdown-option {
+  width: 100%;
+  min-height: 34px;
+  padding: 0.4rem 0.55rem;
+  border: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  background: transparent;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.app-icon-dropdown-option:hover:not(:disabled) {
+  background: var(--app-surface-soft);
+}
+
+.app-icon-dropdown-option:disabled {
+  color: var(--app-text-muted);
+  cursor: default;
+}
+
+.app-icon-dropdown-option.is-selected {
+  background: rgba(80, 143, 255, 0.12);
+  color: var(--app-primary);
+  font-weight: 800;
+}
+
+.app-icon-dropdown-option .app-icon-dropdown-option-trailing {
+  margin-left: auto;
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
+}
+
+.app-icon-dropdown-option.is-selected i {
+  color: var(--app-primary);
+}
+
 @media (max-width: 992px) {
   .app-sidebar,
   .app-shell[data-sidebar-collapsed='true'] .app-sidebar {

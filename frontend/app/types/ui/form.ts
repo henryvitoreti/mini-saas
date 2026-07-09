@@ -1,5 +1,6 @@
 import type { Breadcrumb } from '@/types/common/navigation';
 import type { SelectOption } from '@/types/common/select';
+import type { FormInputMask } from '@/types/forms/form';
 
 export type DateRangeInputValue = [string|null, string|null];
 
@@ -55,9 +56,10 @@ export type AppTextInputProps = {
   name: string;
   type: string|null;
   label: string|null;
-  mask: string|null;
+  mask: FormInputMask|null;
   placeholder: string|null;
   required: boolean|null;
+  disabled: boolean|null;
   tip: string|null;
   startIcon: string|null;
   endIcon: string|null;

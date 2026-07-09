@@ -53,7 +53,7 @@ class CustomerService
 
     public function update(int $id, array $data): Customer|null
     {
-        unset($data['document']);
+        unset($data['document'], $data['type']);
 
         return $this->customerRepository->update($id, $data);
     }
