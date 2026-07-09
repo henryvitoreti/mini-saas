@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import type { Breadcrumb } from '@/types/common/navigation';
+import type { AppFormContainerProps } from '@/types/ui/form';
 
-defineProps<{
-  title: string;
-  subtitle?: string;
-  breadcrumbs?: Breadcrumb[];
-}>();
+defineProps<AppFormContainerProps>();
 </script>
 
 <template>

@@ -1,13 +1,18 @@
 <script setup lang="ts">
-defineProps<{
-  text: string;
-}>();
+import type { AppInfoTooltipProps } from '@/types/ui/components';
+
+withDefaults(defineProps<AppInfoTooltipProps>(), {
+  isInputLabel: false,
+});
 </script>
 
 <template>
-  <span class="app-form-tip" tabindex="0">
+  <span :class="{
+    'app-input-tip': isInputLabel,
+    'app-tip': !isInputLabel
+  }" tabindex="0">
     <i class="fa-solid fa-question"></i>
-    <span class="app-form-tip-content">
+    <span class="app-tip-content">
       {{ text }}
     </span>
   </span>

@@ -8,8 +8,8 @@ export type ApiResponse<T> = {
 };
 
 export type ApiErrorResponse = {
-  message?: string;
-  errors?: Record<string, string[]>;
+  message: string|null;
+  errors: Record<string, string[]>|null;
 };
 
 export class ApiValidationError extends Error {

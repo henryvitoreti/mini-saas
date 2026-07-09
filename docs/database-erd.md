@@ -79,6 +79,7 @@ erDiagram
     CUSTOMERS {
         bigint id PK
         varchar name
+        enum type
         varchar document
         varchar email
         varchar phone

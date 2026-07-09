@@ -2,21 +2,21 @@
 import IMask from 'imask';
 import type { InputMask } from 'imask';
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
+import type { FormInputMask } from '@/types/forms/form';
+import type { AppTextInputProps } from '@/types/ui/form';
 
-const props = defineProps<{
-  value?: string|number|null;
-  modelValue?: string|number|null;
-  name: string;
-  type?: string;
-  label?: string;
-  mask?: string;
-  placeholder?: string;
-  required?: boolean;
-  tip?: string;
-  startIcon?: string;
-  endIcon?: string;
-  errorMessage?: string|null;
-}>();
+type InputMaskOptions = {
+  mask: string|Array<{ mask: string }>;
+};
+
+const props = withDefaults(
+  defineProps<AppTextInputProps>(),
+  {
+    type: 'text',
+    required: false,
+    disabled: false,
+  },
+);
 
 const emit = defineEmits<{
   update: [value: string];
@@ -33,18 +33,39 @@ const rawValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');
 });
 
-const normalizedMask = computed<string|undefined>(() => {
+const normalizedMask = computed<FormInputMask|undefined>(() => {
   if (!props.mask) {
     return undefined;
   }
 
-  const mask = props.mask.trim();
+  if (Array.isArray(props.mask)) {
+    return props.mask.map((mask) => normalizeMask(mask));
+  }
+
+  return normalizeMask(props.mask);
+});
+
+const maskOptions = computed<InputMaskOptions|undefined>(() => {
+  if (!normalizedMask.value) {
+    return undefined;
+  }
+
+  if (Array.isArray(normalizedMask.value)) {
+    return {
+      mask: normalizedMask.value.map((mask) => ({ mask })),
+    };
+  }
+
+  return { mask: normalizedMask.value };
+});
+
+function normalizeMask(mask: string): string {
   const unwrappedMask = mask.startsWith('[') && mask.endsWith(']')
       ? mask.slice(1, -1)
       : mask;
 
   return unwrappedMask.replaceAll('#', '0');
-});
+}
 
 function emitValue(value: string): void {
   emit('update', value);
@@ -84,14 +105,12 @@ function syncValue(): void {
 function setupMask(): void {
   destroyMask();
 
-  if (!inputRef.value || !normalizedMask.value) {
+  if (!inputRef.value || !maskOptions.value) {
     syncValue();
     return;
   }
 
-  maskInstance.value = IMask(inputRef.value, {
-    mask: normalizedMask.value,
-  });
+  maskInstance.value = IMask(inputRef.value, maskOptions.value);
 
   maskInstance.value.on('accept', () => {
     emitValue(maskInstance.value?.unmaskedValue ?? '');
@@ -114,17 +133,16 @@ function handleInput(event: Event): void {
 }
 
 watch(
-  () => rawValue.value,
-  (): void => {
-    syncValue();
-  },
-);
-
-watch(
-  () => normalizedMask.value,
-  async (): Promise<void> => {
+  [rawValue, normalizedMask],
+  async ([, currentMask], [, previousMask]): Promise<void> => {
     await nextTick();
-    setupMask();
+
+    if (currentMask !== previousMask) {
+      setupMask();
+      return;
+    }
+
+    syncValue();
   },
   { flush: 'post' },
 );
@@ -146,7 +164,7 @@ onBeforeUnmount(() => {
         <span v-if="required" class="app-form-required">*</span>
       </label>
 
-      <AppInfoTooltip v-if="tip" :text="tip" />
+      <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" />
     </div>
 
     <div
@@ -166,7 +184,8 @@ onBeforeUnmount(() => {
           type="text"
           :name="name"
           :placeholder="placeholder"
-          :required="required"
+          :disabled="disabled"
+          :aria-required="Boolean(required)"
           @focus="updateMaskValue"
           @keydown.capture="updateMaskValue"
           @input="handleMaskedInput"
@@ -182,7 +201,8 @@ onBeforeUnmount(() => {
           :name="name"
           :value="inputValue"
           :placeholder="placeholder"
-          :required="required"
+          :disabled="disabled"
+          :aria-required="Boolean(required)"
           @input="handleInput"
       >
 

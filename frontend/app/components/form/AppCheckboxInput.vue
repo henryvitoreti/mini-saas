@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
+import type { AppCheckboxInputProps } from '@/types/ui/form';
 
-const props = defineProps<{
-  value?: boolean|null;
-  modelValue?: boolean|null;
-  name: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  tip?: string;
-  errorMessage?: string|null;
-}>();
+const props = withDefaults(
+  defineProps<AppCheckboxInputProps>(),
+  {
+    required: false,
+    disabled: false
+  },
+);
 
 const emit = defineEmits<{
   update: [value: boolean];
@@ -46,8 +44,8 @@ function handleChange(event: Event): void {
             type="checkbox"
             :name="name"
             :checked="inputValue"
-            :required="required"
             :disabled="disabled"
+            :aria-required="Boolean(required)"
             @change="handleChange"
         >
 
@@ -61,7 +59,7 @@ function handleChange(event: Event): void {
         </span>
       </label>
 
-      <AppInfoTooltip v-if="tip" :text="tip" />
+      <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" />
     </div>
 
     <p v-if="errorMessage" class="app-form-error-message">

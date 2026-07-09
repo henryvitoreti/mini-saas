@@ -42,6 +42,10 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
+  .app-data-table-toolbar-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
 }
 
 .app-data-table-search {
@@ -73,7 +77,8 @@
   color: var(--app-text-muted);
 }
 
-.app-data-table-filter-button {
+.app-data-table-icon-button {
+  position: relative;
   width: 44px;
   height: 44px;
   flex: 0 0 44px;
@@ -87,9 +92,27 @@
   color: var(--app-text-muted);
 }
 
-.app-data-table-filter-button:hover {
+.app-data-table-icon-button:hover {
   color: var(--app-primary);
   border-color: var(--app-primary);
+}
+
+.app-data-table-filter-count {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ff5c5c;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .app-data-table-card {
@@ -131,6 +154,29 @@
   white-space: nowrap;
 }
 
+.app-table-sort-button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+}
+
+.app-table-sort-button:disabled {
+  cursor: default;
+}
+
+.app-table-sort-button:not(:disabled):hover {
+  color: var(--app-primary);
+}
+
 .app-table tbody tr {
   cursor: pointer;
   background: var(--app-table-row-bg);
@@ -151,7 +197,7 @@
 }
 
 .app-table tbody td {
-  padding: 1rem;
+  padding: 0.8rem;
   border-bottom: 1px solid var(--app-border);
   background: transparent;
   color: var(--app-text);
@@ -216,24 +262,6 @@
 .app-pagination .btn:focus,
 .app-pagination .btn:focus-visible {
   box-shadow: none;
-}
-
-.app-pagination .btn-custom-primary {
-  color: var(--app-text);
-  background: var(--app-surface-soft);
-  border-color: var(--app-border);
-}
-
-[data-theme='light'] .app-pagination .btn-custom-primary {
-  color: var(--app-secondary);
-  background: #EAF2FF;
-  border-color: rgba(80, 143, 255, 0.22);
-}
-
-[data-theme='dark'] .app-pagination .btn-custom-primary {
-  color: var(--app-tertiary);
-  background: #3A3A3A;
-  border-color: rgba(237, 238, 240, 0.12);
 }
 
 .app-pagination .btn:first-child,
@@ -312,6 +340,7 @@
   background: var(--app-surface);
   border-color: var(--app-border);
   box-shadow: var(--app-shadow);
+  z-index: 1120;
 }
 
 .dropdown-item {
@@ -323,13 +352,108 @@
   background: var(--app-surface-soft);
 }
 
+.app-filter-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.app-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.app-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1110;
+  width: min(460px, calc(100vw - 2rem));
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow);
+}
+
+.app-dialog-header,
+.app-dialog-footer {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-dialog-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.app-dialog-header .btn {
+  margin-left: auto;
+}
+
+.app-dialog-body {
+  padding: 1rem;
+}
+
+.app-dialog-body p {
+  margin: 0 0 1rem;
+  color: var(--app-text);
+}
+
+.app-dialog-details {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.app-dialog-details div {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 0.75rem;
+}
+
+.app-dialog-details dt {
+  color: var(--app-text-muted);
+  font-weight: 700;
+}
+
+.app-dialog-details dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.app-dialog-footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--app-border);
+  border-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .app-data-table-header {
     flex-direction: column;
   }
 
   .app-data-table-toolbar {
+    flex-direction: column;
     align-items: stretch;
+  }
+
+  .app-data-table-toolbar .app-data-table-toolbar-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .app-data-table-search {
+    width: 100%;
+    flex: 0 0 auto;
   }
 
   .app-data-table-title {
@@ -338,6 +462,10 @@
 
   .app-data-table-footer {
     justify-content: flex-start;
+  }
+
+  .app-table-mobile-hidden {
+    display: none;
   }
 
   .app-pagination {

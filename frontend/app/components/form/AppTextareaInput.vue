@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
+import type { AppTextareaInputProps } from '@/types/ui/form';
 
-const props = defineProps<{
-  value?: string|number|null;
-  modelValue?: string|number|null;
-  name: string;
-  label?: string;
-  placeholder?: string;
-  required?: boolean;
-  tip?: string;
-  rows?: number;
-  errorMessage?: string|null;
-}>();
+const props = withDefaults(
+  defineProps<AppTextareaInputProps>(),
+  {
+    required: false,
+  },
+);
 
 const emit = defineEmits<{
   update: [value: string];
@@ -45,7 +41,7 @@ function handleInput(event: Event): void {
         <span v-if="required" class="app-form-required">*</span>
       </label>
 
-      <AppInfoTooltip v-if="tip" :text="tip" />
+      <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" />
     </div>
 
     <textarea
@@ -54,8 +50,8 @@ function handleInput(event: Event): void {
         :name="name"
         :value="inputValue"
         :placeholder="placeholder"
-        :required="required"
         :rows="rows ?? 4"
+        :aria-required="Boolean(required)"
         @input="handleInput"
     ></textarea>
 

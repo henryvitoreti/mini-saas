@@ -1,7 +1,7 @@
 export type AppError = {
-  statusCode?: number;
-  statusMessage?: string;
-  message?: string;
+  statusCode: number|null;
+  statusMessage: string|null;
+  message: string|null;
 };
 
 export type ErrorContent = {

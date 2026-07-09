@@ -1,33 +1,24 @@
 <script setup lang="ts">
+import { defineComponent, h, type VNode } from 'vue';
 import VSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 import type { PaginatedResponse } from '@/types/common/pagination';
 import type { SelectOption } from '@/types/common/select';
+import type { AppSelect2InputProps } from '@/types/ui/form';
 
-const props = withDefaults(defineProps<{
-  value?: string|number|null;
-  modelValue?: string|number|null;
-  name: string;
-  label?: string;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-  tip?: string;
-  options?: SelectOption[];
-  apiUrl?: string;
-  searchParam?: string;
-  pageParam?: string;
-  perPageParam?: string;
-  perPage?: number;
-  errorMessage?: string|null;
-}>(), {
-  options: () => [],
-  searchParam: 'search',
-  pageParam: 'page',
-  perPageParam: 'per_page',
-  perPage: 10,
-});
+const props = withDefaults(
+  defineProps<AppSelect2InputProps>(),
+  {
+    required: false,
+    disabled: false,
+    options: () => [],
+    searchParam: 'search',
+    pageParam: 'page',
+    perPageParam: 'per_page',
+    perPage: 10,
+  },
+);
 
 const emit = defineEmits<{
   update: [value: string];
@@ -37,7 +28,7 @@ const emit = defineEmits<{
 
 const inputId = computed<string>(() => `app-select2-input-${props.name}`);
 const usesApi = computed<boolean>(() => Boolean(props.apiUrl));
-const selectOptions = ref<SelectOption[]>([...props.options]);
+const selectOptions = ref<SelectOption[]>([...(props.options ?? [])]);
 const searchTerm = ref('');
 const currentPage = ref(1);
 const hasMorePages = ref(true);
@@ -45,6 +36,17 @@ const isLoading = ref(false);
 const requestIndex = ref(0);
 const abortController = shallowRef<AbortController|null>(null);
 const intersectionObserver = shallowRef<IntersectionObserver|null>(null);
+const selectComponents = {
+  Deselect: defineComponent({
+    name: 'AppSelect2DeselectIcon',
+    setup(): () => VNode {
+      return (): VNode => h('i', {
+        class: 'fa-solid fa-xmark app-select2-clear-icon',
+        'aria-hidden': 'true',
+      });
+    },
+  }),
+};
 
 const inputValue = computed<string>(() => {
   return String(props.value ?? props.modelValue ?? '');
@@ -56,6 +58,33 @@ function emitValue(value: string|number|null): void {
   emit('update', normalizedValue);
   emit('update:value', normalizedValue);
   emit('update:modelValue', normalizedValue);
+}
+
+function calculateDropdownPosition(
+  dropdownList: HTMLUListElement,
+  _component: { $refs: { toggle: HTMLElement|null } },
+  position: { width: string; top: string; left: string },
+): (() => void) {
+  const rootStyles = getComputedStyle(document.documentElement);
+  const surface = rootStyles.getPropertyValue('--app-surface').trim();
+  const border = rootStyles.getPropertyValue('--app-border').trim();
+  const text = rootStyles.getPropertyValue('--app-text').trim();
+  const shadow = rootStyles.getPropertyValue('--app-shadow').trim();
+
+  dropdownList.classList.add('app-select2-dropdown-menu');
+  dropdownList.style.width = position.width;
+  dropdownList.style.top = position.top;
+  dropdownList.style.left = position.left;
+  dropdownList.style.background = surface;
+  dropdownList.style.borderColor = border;
+  dropdownList.style.color = text;
+  dropdownList.style.boxShadow = shadow;
+  dropdownList.style.setProperty('--vs-dropdown-bg', surface);
+  dropdownList.style.setProperty('--vs-dropdown-color', text);
+
+  return (): void => {
+    dropdownList.classList.remove('app-select2-dropdown-menu');
+  };
 }
 
 function getResponseOptions(response: PaginatedResponse<SelectOption>): SelectOption[] {
@@ -82,15 +111,19 @@ async function fetchOptions(page: number): Promise<void> {
   isLoading.value = true;
   const activeRequest = ++requestIndex.value;
   const controller = new AbortController();
+  const searchParam = props.searchParam ?? 'search';
+  const pageParam = props.pageParam ?? 'page';
+  const perPageParam = props.perPageParam ?? 'per_page';
+  const perPage = props.perPage ?? 10;
   abortController.value = controller;
 
   try {
     const response = await $fetch<PaginatedResponse<SelectOption>>(props.apiUrl, {
       signal: controller.signal,
       query: {
-        [props.searchParam]: searchTerm.value,
-        [props.pageParam]: page,
-        [props.perPageParam]: props.perPage,
+        [searchParam]: searchTerm.value,
+        [pageParam]: page,
+        [perPageParam]: perPage,
       },
     });
 
@@ -108,7 +141,7 @@ async function fetchOptions(page: number): Promise<void> {
     currentPage.value = page;
     hasMorePages.value = lastPage
         ? page < lastPage
-        : nextOptions.length >= props.perPage;
+        : nextOptions.length >= perPage;
   } catch (error) {
     if (activeRequest === requestIndex.value) {
       throw error;
@@ -168,9 +201,9 @@ function setLoadMoreElement(element: Element|null): void {
 
 watch(
   () => props.options,
-  (options): void => {
+  (options: SelectOption[]|null): void => {
     if (!usesApi.value) {
-      selectOptions.value = [...options];
+      selectOptions.value = [...(options ?? [])];
     }
   },
 );
@@ -195,7 +228,7 @@ onBeforeUnmount(() => {
         <span v-if="required" class="app-form-required">*</span>
       </label>
 
-      <AppInfoTooltip v-if="tip" :text="tip" />
+      <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" />
     </div>
 
     <VSelect
@@ -209,11 +242,27 @@ onBeforeUnmount(() => {
         :disabled="disabled"
         :loading="isLoading"
         :clearable="true"
+        :aria-required="Boolean(required)"
+        :components="selectComponents"
         :filterable="!usesApi"
+        :append-to-body="true"
+        :calculate-position="calculateDropdownPosition"
         :selectable="(option: SelectOption) => !option.disabled"
         @update:model-value="emitValue"
         @search="handleSearch"
     >
+      <template #selected-option="{ label }">
+        <span class="app-select2-selected-option">
+          {{ label }}
+        </span>
+      </template>
+
+      <template #option="{ label }">
+        <span class="app-select2-option">
+          <span>{{ label }}</span>
+        </span>
+      </template>
+
       <template #open-indicator>
         <i class="fa-solid fa-chevron-down app-select2-input-arrow"></i>
       </template>
@@ -237,7 +286,6 @@ onBeforeUnmount(() => {
         class="app-select2-required-input"
         :name="name"
         :value="inputValue"
-        :required="required"
         tabindex="-1"
         aria-hidden="true"
     >
