@@ -13,7 +13,6 @@ class User extends Authenticatable implements JWTSubject
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'role_id',
         'name',
         'email',
         'password',
@@ -36,7 +35,6 @@ class User extends Authenticatable implements JWTSubject
     protected function casts(): array
     {
         return [
-            'role_id' => 'integer',
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',

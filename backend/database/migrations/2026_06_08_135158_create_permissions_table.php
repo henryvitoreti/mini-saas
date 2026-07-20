@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('slug');
             $table->string('base_front_url');
             $table->string('base_api_url');
-            $table->boolean('show_locked_routes')->default(true);
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
