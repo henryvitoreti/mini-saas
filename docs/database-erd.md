@@ -32,20 +32,10 @@ erDiagram
         varchar slug UK
         varchar base_front_url
         varchar base_api_url
-        boolean show_locked_routes
-        boolean allow_permission_request
-        boolean is_active
         timestamp created_at
         timestamp updated_at
     }
-
-    TENANTS ||--o{ DOMAINS : "possui"
-```
-
-## Banco do tenant
-
-```mermaid
-erDiagram
+    
     ROLES {
         bigint id PK
         varchar name
@@ -59,12 +49,22 @@ erDiagram
 
     PERMISSION_ROLE {
         bigint role_id FK
-        bigint permission_id
+        bigint permission_id FK
+        boolean show_locked_routes
+        boolean is_active
     }
 
+    TENANTS ||--o{ DOMAINS : "possui"
+    ROLES ||--o{ PERMISSION_ROLE : "possui"
+    PERMISSIONS ||--o{ PERMISSION_ROLE : "possui"
+```
+
+## Banco do tenant
+
+```mermaid
+erDiagram
     USERS {
         bigint id PK
-        bigint role_id FK
         varchar name
         varchar email UK
         varchar password
@@ -160,8 +160,27 @@ erDiagram
         timestamp updated_at
     }
 
-    ROLES ||--o{ USERS : "possui"
-    ROLES ||--o{ PERMISSION_ROLE : "possui"
+    COMPANY {
+        int id PK
+        bigint role_id FK
+        varchar name
+        varchar document
+        varchar email
+        varchar phone
+        varchar secondary_phone
+        varchar zip_code
+        varchar street
+        varchar number
+        varchar complement
+        varchar district
+        varchar city
+        varchar state
+        varchar logo_path
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+
     CUSTOMERS ||--o{ WORK_ORDERS : "possui"
     VEHICLES ||--o{ WORK_ORDERS : "possui"
     USERS ||--o{ WORK_ORDERS : "responsavel"

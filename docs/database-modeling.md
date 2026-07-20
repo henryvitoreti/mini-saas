@@ -1,77 +1,128 @@
-# 🗃️ Modelagem de Domínio e Banco de Dados
+# Modelagem de Dominio e Banco de Dados
 
-## 🎯 Objetivo
+## Objetivo
 
-Definir a estrutura de dados inicial do sistema antes da criação das migrations, mantendo o projeto simples, entregável e coerente com o prazo do MVP.
+Definir a estrutura de dados inicial do sistema de acordo com o ERD atual, mantendo o projeto simples, entregavel e coerente com o MVP.
 
-A modelagem foi pensada para:
+A modelagem esta dividida em dois contextos:
 
-- suportar multi-tenancy com landlord + database por tenant;
-- evitar complexidade desnecessária no início;
-- permitir evolução futura sem comprometer a entrega inicial.
+- **Banco base**: armazena dados globais da plataforma e resolve o tenant.
+- **Banco do tenant**: armazena os dados operacionais de cada oficina.
 
 ---
 
-## 🧱 Estratégia de Banco de Dados
+## Estrategia de Banco de Dados
 
-O sistema será dividido em:
+### 1. Banco base
 
-### 1. Banco base (landlord)
-Responsável apenas por identificar e resolver os tenants.
+Responsavel por identificar tenants, dominios, roles centralizadas e permissoes globais disponiveis na plataforma.
 
 ### 2. Banco do tenant
-Responsável pelos dados operacionais da oficina.
+
+Responsavel pelos dados internos da oficina, incluindo usuarios, clientes, veiculos, ordens de servico, checklists e dados da empresa.
 
 ---
 
-# 1. Banco Base (Landlord)
+# 1. Banco Base
 
 ## Tabela: `tenants`
 
-Armazena os tenants cadastrados no sistema.
+Armazena os tenants cadastrados na plataforma.
+
+### Campos
+
+- `id`
+- `active`
+- `data`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+### Descricao dos campos
+
+- `id`: identificador do tenant.
+- `active`: indica se o tenant esta ativo.
+- `data`: dados adicionais do tenant em formato JSON.
+- `deleted_at`: permite exclusao logica do tenant.
+
+### Constraints
+
+- primary key: `id`
+
+### Observacoes
+
+- O campo `id` segue o padrao do pacote de tenancy.
+- Dados especificos da oficina ficam no banco do tenant, nao no banco base.
+
+---
+
+## Tabela: `domains`
+
+Armazena os dominios vinculados aos tenants.
+
+### Campos
+
+- `id`
+- `domain`
+- `tenant_id`
+- `created_at`
+- `updated_at`
+
+### Descricao dos campos
+
+- `domain`: dominio ou subdominio usado para resolver o tenant.
+- `tenant_id`: tenant relacionado ao dominio.
+
+### Constraints
+
+- primary key: `id`
+- foreign key: `tenant_id` -> `tenants.id`
+- unique: `domain`
+
+### Observacoes
+
+- Um tenant pode possuir um ou mais dominios.
+- A resolucao do tenant acontece a partir do dominio da requisicao.
+
+---
+
+## Tabela: `permissions`
+
+Armazena as permissoes globais disponiveis na plataforma.
 
 ### Campos
 
 - `id`
 - `name`
 - `slug`
-- `domain`
-- `database_name`
-- `is_active`
+- `base_front_url`
+- `base_api_url`
 - `created_at`
 - `updated_at`
-- `deleted_at`
 
-### Descrição dos campos
+### Descricao dos campos
 
-- `name`: nome do tenant/oficina
-- `slug`: identificador interno derivado do nome
-- `domain`: domínio ou subdomínio do tenant
-- `database_name`: nome do banco de dados do tenant
-- `is_active`: indica se o tenant está ativo
-- `deleted_at`: permite exclusão lógica para futura remoção definitiva
+- `name`: nome exibido da permissao.
+- `slug`: identificador unico da permissao.
+- `base_front_url`: rota base no frontend relacionada a permissao.
+- `base_api_url`: rota base na API relacionada a permissao.
 
-### Constraints e índices
+### Constraints
 
+- primary key: `id`
 - unique: `slug`
-- unique: `domain`
-- unique: `database_name`
-- index: `is_active`
 
-### Observações
+### Observacoes
 
-- Não haverá tabela separada para domínios
-- Não haverá tabela separada para configuração de banco
-- Não haverá plano, assinatura ou usuário global neste MVP
-- O tenant poderá ser marcado para exclusão lógica antes da remoção definitiva do banco
+- As permissoes ficam no banco base porque sao globais da plataforma.
+- O controle de disponibilidade da permissao para uma role fica no pivot `permission_role`.
+- `show_locked_routes` e `is_active` sao configuracoes do vinculo entre role e permissao, nao da permissao global.
 
 ---
 
-# 2. Banco do Tenant
-
 ## Tabela: `roles`
 
-Armazena os perfis de acesso internos da oficina.
+Armazena os perfis de acesso centralizados da plataforma.
 
 ### Campos
 
@@ -79,35 +130,63 @@ Armazena os perfis de acesso internos da oficina.
 - `name`
 - `slug`
 - `description`
-- `show_locked_routes`
-- `allow_permission_request`
 - `is_active`
 - `created_at`
 - `updated_at`
 - `deleted_at`
 
-### Constraints e índices
+### Constraints
 
+- primary key: `id`
 - unique: `slug`
-- index: `is_active`
 
-### Observações
+### Observacoes
 
-Esses campos suportam a ideia de exibir rotas bloqueadas no frontend:
-
-- `show_locked_routes`
-- `allow_permission_request`
+- Roles ficam no banco base e sao manipuladas pelo admin da plataforma.
+- Tenants nao possuem mais copia local de roles.
+- A empresa do tenant aponta para uma role central por `company.role_id`.
 
 ---
 
+## Tabela: `permission_role`
+
+Relaciona roles centralizadas com permissoes globais da plataforma.
+
+### Campos
+
+- `role_id`
+- `permission_id`
+- `show_locked_routes`
+- `is_active`
+
+### Descricao dos campos
+
+- `role_id`: role central relacionada.
+- `permission_id`: permissao global relacionada.
+- `show_locked_routes`: indica se a rota bloqueada pode aparecer na interface com cadeado.
+- `is_active`: indica se a permissao esta liberada para a role.
+
+### Constraints
+
+- referencia: `role_id` -> `roles.id`
+- referencia: `permission_id` -> `permissions.id`
+
+### Observacoes
+
+- A tabela funciona como pivot central entre roles e permissoes.
+- Como `roles`, `permissions` e `permission_role` ficam no banco base, o relacionamento entre elas nao atravessa bancos.
+
+---
+
+# 2. Banco do Tenant
+
 ## Tabela: `users`
 
-Usuários internos da oficina.
+Armazena os usuarios internos da oficina.
 
 ### Campos
 
 - `id`
-- `role_id`
 - `name`
 - `email`
 - `password`
@@ -118,28 +197,28 @@ Usuários internos da oficina.
 - `updated_at`
 - `deleted_at`
 
-### Constraints e índices
+### Constraints
 
-- foreign key: `role_id` → `roles.id`
+- primary key: `id`
 - unique: `email`
-- index: `role_id`
-- index: `is_active`
 
-### Observações
+### Observacoes
 
-- Cada usuário possui apenas uma role
-- Não haverá tabela pivot `role_user`
+- Usuarios nao possuem mais `role_id` no ERD atual.
+- O perfil de acesso do tenant e definido em `company.role_id`.
+- Nao ha tabela pivot `role_user` no ERD atual.
 
 ---
 
 ## Tabela: `customers`
 
-Clientes da oficina.
+Armazena os clientes da oficina.
 
 ### Campos
 
 - `id`
 - `name`
+- `type`
 - `document`
 - `email`
 - `phone`
@@ -157,23 +236,25 @@ Clientes da oficina.
 - `updated_at`
 - `deleted_at`
 
-### Constraints e índices
+### Descricao dos campos
 
-- index: `document`
-- index: `name`
-- index: `phone`
-- index: `is_active`
+- `type`: tipo de cliente, como pessoa fisica ou pessoa juridica.
+- `document`: CPF ou CNPJ do cliente.
 
-### Observações
+### Constraints
 
-- Endereço será armazenado diretamente na tabela
-- Não haverá tabela separada de endereço neste MVP
+- primary key: `id`
+
+### Observacoes
+
+- O endereco do cliente fica diretamente na tabela.
+- Nao ha tabela separada de enderecos no ERD atual.
 
 ---
 
 ## Tabela: `vehicles`
 
-Veículos cadastrados no sistema.
+Armazena os veiculos cadastrados na oficina.
 
 ### Campos
 
@@ -195,24 +276,21 @@ Veículos cadastrados no sistema.
 - `updated_at`
 - `deleted_at`
 
-### Constraints e índices
+### Constraints
 
-- index: `plate`
-- index: `brand`
-- index: `model`
-- index: `is_active`
+- primary key: `id`
 
-### Observações
+### Observacoes
 
-- Veículo não terá vínculo direto com cliente
-- O vínculo entre cliente e veículo será feito pela ordem de serviço
-- Isso permite que o mesmo veículo possa estar relacionado a clientes diferentes ao longo do tempo
+- O veiculo nao possui vinculo direto com cliente no ERD atual.
+- O vinculo entre cliente e veiculo acontece pela ordem de servico.
+- Isso permite que o mesmo veiculo esteja relacionado a clientes diferentes ao longo do tempo.
 
 ---
 
 ## Tabela: `work_orders`
 
-Ordens de serviço da oficina.
+Armazena as ordens de servico da oficina.
 
 ### Campos
 
@@ -233,23 +311,19 @@ Ordens de serviço da oficina.
 - `created_at`
 - `updated_at`
 
-### Constraints e índices
+### Constraints
 
-- foreign key: `customer_id` → `customers.id`
-- foreign key: `vehicle_id` → `vehicles.id`
-- foreign key: `assigned_user_id` → `users.id`
+- primary key: `id`
+- foreign key: `customer_id` -> `customers.id`
+- foreign key: `vehicle_id` -> `vehicles.id`
+- foreign key: `assigned_user_id` -> `users.id`
 - unique: `order_number`
-- index: `customer_id`
-- index: `vehicle_id`
-- index: `assigned_user_id`
-- index: `status`
-- index: `entry_date`
 
-### Observações
+### Observacoes
 
-- Não haverá soft delete
-- A exclusão da OS não deve ser um fluxo comum
-- O ideal é trabalhar com mudança de status
+- Nao ha soft delete para ordens de servico no ERD atual.
+- A exclusao de uma ordem de servico nao deve ser um fluxo comum.
+- O fluxo principal deve ser controle por status.
 
 ### Status sugeridos
 
@@ -269,7 +343,7 @@ Ordens de serviço da oficina.
 
 ## Tabela: `checklists`
 
-Checklist vinculado a uma ordem de serviço.
+Armazena checklists vinculados a ordens de servico.
 
 ### Campos
 
@@ -281,16 +355,15 @@ Checklist vinculado a uma ordem de serviço.
 - `created_at`
 - `updated_at`
 
-### Constraints e índices
+### Constraints
 
-- foreign key: `work_order_id` → `work_orders.id`
-- index: `work_order_id`
-- index: `status`
+- primary key: `id`
+- foreign key: `work_order_id` -> `work_orders.id`
 
-### Observações
+### Observacoes
 
-- Não haverá soft delete
-- Estrutura mantida simples para permitir crescimento futuro
+- Nao ha soft delete para checklists no ERD atual.
+- A estrutura foi mantida simples para permitir evolucao futura.
 
 ### Status sugeridos
 
@@ -301,7 +374,7 @@ Checklist vinculado a uma ordem de serviço.
 
 ## Tabela: `checklist_items`
 
-Itens do checklist.
+Armazena os itens de cada checklist.
 
 ### Campos
 
@@ -316,16 +389,61 @@ Itens do checklist.
 - `created_at`
 - `updated_at`
 
-### Constraints e índices
+### Constraints
 
-- foreign key: `checklist_id` → `checklists.id`
-- index: `checklist_id`
-- index: `position`
+- primary key: `id`
+- foreign key: `checklist_id` -> `checklists.id`
 
-### Observações
+### Observacoes
 
-- Não haverá soft delete
-- Itens poderão ser removidos definitivamente
+- Nao ha soft delete para itens de checklist no ERD atual.
+- Itens podem ser removidos definitivamente.
+
+---
+
+## Tabela: `company`
+
+Armazena os dados da empresa/oficina do tenant.
+
+### Campos
+
+- `id`
+- `role_id`
+- `name`
+- `document`
+- `email`
+- `phone`
+- `secondary_phone`
+- `zip_code`
+- `street`
+- `number`
+- `complement`
+- `district`
+- `city`
+- `state`
+- `logo_path`
+- `notes`
+- `created_at`
+- `updated_at`
+
+### Descricao dos campos
+
+- `name`: nome da empresa/oficina.
+- `document`: CNPJ ou documento da empresa.
+- `logo_path`: caminho do arquivo de logo da empresa.
+- `notes`: observacoes internas sobre a empresa.
+
+### Constraints
+
+- primary key: `id`
+- referencia logica: `role_id` -> `roles.id` no banco base
+
+### Observacoes
+
+- Cada tenant deve possuir apenas um registro em `company`.
+- O tenant base deve iniciar com um registro chamado `Base`.
+- A tabela fica no banco do tenant porque representa dados especificos da oficina.
+- `role_id` aponta para uma role central e nao deve depender de foreign key fisica entre bancos.
 
 ---
 
@@ -341,15 +459,19 @@ Itens do checklist.
 
 ## Tabelas sem soft delete
 
+- `domains`
+- `permissions`
+- `permission_role`
 - `work_orders`
 - `checklists`
 - `checklist_items`
+- `company`
 
 ### Justificativa
 
-Soft delete será usado apenas onde faz sentido restaurar dados ou evitar exclusão acidental.
+Soft delete e usado apenas onde faz sentido restaurar dados ou evitar exclusao acidental de cadastros principais.
 
-Não será usado em tabelas com comportamento mais operacional, rápido ou que não devam ser restauradas.
+Tabelas operacionais, tabelas pivot, configuracoes globais e dados unicos por tenant ficam sem soft delete no ERD atual.
 
 ---
 
@@ -357,47 +479,60 @@ Não será usado em tabelas com comportamento mais operacional, rápido ou que n
 
 ## Banco base
 
-- `tenants` não possui relacionamento com outras tabelas neste MVP
+- `tenants` hasMany `domains`
+- `domains` belongsTo `tenants`
+- `roles` hasMany `permission_role`
+- `permission_role` belongsTo `roles`
+- `permissions` hasMany `permission_role`
+- `permission_role` belongsTo `permissions`
+- `roles` belongsToMany `permissions` por `permission_role`
+- `permissions` belongsToMany `roles` por `permission_role`
 
 ## Banco do tenant
 
-- `roles` hasMany `users`
-- `users` belongsTo `roles`
 - `work_orders` belongsTo `customers`
 - `work_orders` belongsTo `vehicles`
-- `work_orders` belongsTo `users` (`assigned_user_id`)
+- `work_orders` belongsTo `users` usando `assigned_user_id`
 - `checklists` belongsTo `work_orders`
 - `checklist_items` belongsTo `checklists`
 
+## Relacionamento logico entre bancos
+
+- `company.role_id` referencia logicamente `roles.id` no banco base
+
 ---
 
-# 5. Estrutura final aprovada para o MVP
+# 5. Estrutura final do ERD atual
 
 ## Banco base
+
 - `tenants`
+- `domains`
+- `permissions`
+- `roles`
+- `permission_role`
 
 ## Banco do tenant
-- `roles`
+
 - `users`
 - `customers`
 - `vehicles`
 - `work_orders`
 - `checklists`
 - `checklist_items`
+- `company`
 
 ---
 
-# 6. Pontos deixados para evolução futura
+# 6. Pontos deixados para evolucao futura
 
-Os itens abaixo foram intencionalmente removidos do MVP para reduzir complexidade e aumentar a chance de entrega no prazo:
+Os itens abaixo seguem fora do ERD atual para reduzir complexidade inicial:
 
 - planos
 - assinaturas
-- múltiplos domínios por tenant
-- configuração de banco em tabela separada
-- usuários globais
-- roles globais
-- permissions em banco
-- auditoria avançada
-- vínculo direto entre cliente e veículo
-- histórico de dono do veículo
+- usuarios globais
+- roles por usuario
+- auditoria avancada
+- tabela separada de enderecos
+- vinculo direto entre cliente e veiculo
+- historico de dono do veiculo
