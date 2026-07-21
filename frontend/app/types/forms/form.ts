@@ -25,3 +25,8 @@ export type FieldsProps = {
   id?: number|null;
   isModal?: boolean;
 };
+
+export type TenantFormProps = {
+  id?: string|null;
+  isModal?: boolean;
+};

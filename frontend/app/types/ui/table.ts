@@ -72,6 +72,7 @@ export type AppDataTableProps = {
   hasRestore: boolean|null;
   hasCreate: boolean|null;
   hasSearch: boolean|null;
+  hasExport: boolean|null;
   hasFilters: boolean|null;
   searchPlaceholder: string|null;
   defaultFilters: TableFilters|null;

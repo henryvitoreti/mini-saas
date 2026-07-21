@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 import { useBaseForm } from '@/composables/forms/BaseFormComposable';
-import { customerTypeOptions } from '@/config/customers/customer-options';
+import { customerTypeOptions } from '@/utils/entities/customer';
 import { CustomerService } from '@/services/customers/CustomerService';
 import {
   CUSTOMER_TYPE_COMPANY,

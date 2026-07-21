@@ -9,7 +9,7 @@ import {
   getCustomerStatusLabel,
   getCustomerTypeBadgeClass,
   getCustomerTypeLabel,
-} from '@/config/customers/customer-options';
+} from '@/utils/entities/customer';
 import type { TableColumn, TableFilters } from '@/types/ui/table';
 
 const columns: TableColumn[] = [

@@ -80,6 +80,7 @@ const props = withDefaults(
     hasRestore: false,
     hasCreate: true,
     hasSearch: true,
+    hasExport: true,
     hasFilters: true,
     searchPlaceholder: 'Pesquisar...',
     defaultFilters: () => ({}),
@@ -89,6 +90,7 @@ const props = withDefaults(
     defaultLimit: 20,
     limitOptions: () => [10, 20, 50, 100],
     withDetails: true,
+    filterCountGroups: null,
   },
 );
 
@@ -807,6 +809,7 @@ onBeforeUnmount((): void => {
         </button>
 
         <AppIconDropdown
+            v-if="hasExport"
             :icon="isExporting ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-file-export'"
             title="Exportar"
             :is-open="exportMenuOpen"

@@ -6,12 +6,12 @@ import {
   logout as logoutRequest,
   removeAuthToken,
 } from '@/services/api/auth-service';
-import type { AuthenticatedUser } from '@/types/auth';
+import type { AuthenticatedPermission, AuthenticatedUser } from '@/types/auth';
 
 export function useAuth() {
   const token = useState<string|null>('auth.token', () => getAuthToken());
   const user = useState<AuthenticatedUser|null>('auth.user', () => getAuthUser());
-  const permissions = useState<string[]>('auth.permissions', () => []);
+  const permissions = useState<AuthenticatedPermission[]>('auth.permissions', () => []);
 
   const isAuthenticated = computed<boolean>(() => Boolean(token.value));
 

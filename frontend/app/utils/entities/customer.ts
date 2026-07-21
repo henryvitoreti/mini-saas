@@ -1,8 +1,7 @@
 import type { SelectOption } from '@/types/common/select';
-import {
-  CUSTOMER_TYPE_COMPANY,
-  CUSTOMER_TYPE_INDIVIDUAL,
-} from '@/types/entities/customer';
+import { CUSTOMER_TYPE_COMPANY, CUSTOMER_TYPE_INDIVIDUAL } from '@/types/entities/customer';
+import { getOptionLabel } from '@/utils/label-handler';
+import { normalizeBooleanValue } from '@/utils/normalizer';
 
 export const customerTypeOptions: SelectOption[] = [
   {
@@ -30,15 +29,6 @@ export const customerStatusOptions: SelectOption[] = [
   },
 ];
 
-function getOptionLabel(options: SelectOption[], value: unknown): string {
-  const normalizedValue = String(value ?? '');
-  const option = options.find((item: SelectOption): boolean => {
-    return String(item.value) === normalizedValue;
-  });
-
-  return option?.label ?? '-';
-}
-
 export function getCustomerTypeLabel(value: unknown): string {
   return getOptionLabel(customerTypeOptions, value);
 }
@@ -47,24 +37,12 @@ export function getCustomerTypeBadgeClass(value: unknown): string {
   return value === CUSTOMER_TYPE_COMPANY ? 'is-info' : 'is-primary';
 }
 
-function normalizeCustomerStatus(value: unknown): boolean|null {
-  if (value === true || value === 'true' || value === 1 || value === '1') {
-    return true;
-  }
-
-  if (value === false || value === 'false' || value === 0 || value === '0') {
-    return false;
-  }
-
-  return null;
-}
-
 export function getCustomerStatusLabel(value: unknown): string {
-  const status = normalizeCustomerStatus(value);
+  const status = normalizeBooleanValue(value);
 
   return status === null ? '-' : getOptionLabel(customerStatusOptions, String(status));
 }
 
 export function getCustomerStatusBadgeClass(value: unknown): string {
-  return normalizeCustomerStatus(value) ? 'is-success' : 'is-muted';
+  return normalizeBooleanValue(value) ? 'is-success' : 'is-muted';
 }

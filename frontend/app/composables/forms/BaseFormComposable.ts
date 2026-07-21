@@ -4,6 +4,36 @@ import type { FormAttribute, FormPayload, FormPayloadFormatter } from '@/types/f
 export function useBaseForm<TAttributes extends Record<string, FormAttribute>>(
   attributes: TAttributes,
 ) {
+  function setPayloadValue(payload: FormPayload, key: string, value: unknown): void {
+    const keyParts = key.split('.');
+
+    if (keyParts.length === 1) {
+      payload[key] = value;
+      return;
+    }
+
+    let currentPayloadLevel: FormPayload = payload;
+
+    keyParts.forEach((keyPart, index): void => {
+      const isLastKeyPart = index === keyParts.length - 1;
+
+      if (isLastKeyPart) {
+        currentPayloadLevel[keyPart] = value;
+        return;
+      }
+
+      if (
+        typeof currentPayloadLevel[keyPart] !== 'object'
+        || currentPayloadLevel[keyPart] === null
+        || Array.isArray(currentPayloadLevel[keyPart])
+      ) {
+        currentPayloadLevel[keyPart] = {};
+      }
+
+      currentPayloadLevel = currentPayloadLevel[keyPart] as FormPayload;
+    });
+  }
+
   function normalizePayloadValue(value: unknown): unknown {
     return value === '' ? null : value;
   }
@@ -29,7 +59,7 @@ export function useBaseForm<TAttributes extends Record<string, FormAttribute>>(
     for (const attributeKey in attributes) {
       const attribute = attributes[attributeKey];
 
-      payload[attribute.payloadKey] = normalizePayloadValue(attribute.value);
+      setPayloadValue(payload, attribute.payloadKey, normalizePayloadValue(attribute.value));
     }
 
     if (formatter) {

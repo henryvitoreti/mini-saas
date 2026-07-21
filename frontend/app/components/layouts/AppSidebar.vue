@@ -22,7 +22,13 @@ const flyoutTop = ref<number>(96);
 const closeFlyoutTimeout = ref<ReturnType<typeof setTimeout>|null>(null);
 
 function canShowItem(item: SidebarItem): boolean {
-  return item.allowed || item.show;
+  let response = item.allowed || item.show;
+
+  if (item.onlyAdmin) {
+    response = useRuntimeConfig().public.baseUrl === useRequestURL().origin
+  }
+
+  return response;
 }
 
 function isItemDisabled(item: SidebarItem): boolean {

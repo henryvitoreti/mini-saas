@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import debounce from 'lodash/debounce';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AppDateInput from '@/components/form/AppDateInput.vue';
 import AppSelectInput from '@/components/form/AppSelectInput.vue';
@@ -9,8 +8,8 @@ import AppSwitchInput from '@/components/form/AppSwitchInput.vue';
 import AppTextInput from '@/components/form/AppTextInput.vue';
 import AppTextareaInput from '@/components/form/AppTextareaInput.vue';
 import AppInfoTooltip from '@/components/ui/AppInfoTooltip.vue';
+import { useAddressLookup } from '@/composables/forms/AddressLookupComposable';
 import { useCustomerForm } from '@/composables/forms/CustomerFormComposable';
-import { fetchIbgeCitiesByState, fetchIbgeStates, fetchViaCepAddress } from '@/services/external/address-lookup';
 import type { FieldsProps } from '@/types/forms/form';
 
 const props = withDefaults(
@@ -25,55 +24,18 @@ const router = useRouter();
 const appToast = useAppToast();
 const customerForm = useCustomerForm();
 const { attributes } = customerForm;
-const isLoadingStates = ref(false);
-const isLoadingCities = ref(false);
+const {
+  isLoadingStates,
+  isLoadingCities,
+  fetchStates,
+  fetchCities,
+  updateState,
+  updateZipCode,
+} = useAddressLookup(attributes);
 
 const isEditing = computed<boolean>(() => {
   return props.id !== null;
 });
-
-async function fetchStates(): Promise<void> {
-  isLoadingStates.value = true;
-
-  try {
-    const states = await fetchIbgeStates();
-
-    attributes.state.options = states.map((state) => ({
-      label: `${state.sigla} - ${state.nome}`,
-      value: state.sigla,
-      disabled: null,
-    }));
-  } finally {
-    isLoadingStates.value = false;
-  }
-}
-
-async function fetchCities(state: string|null): Promise<void> {
-  if (!state) {
-    attributes.city.options = [];
-    return;
-  }
-
-  isLoadingCities.value = true;
-
-  try {
-    const cities = await fetchIbgeCitiesByState(state);
-
-    attributes.city.options = cities.map((city) => ({
-      label: city.nome,
-      value: city.nome,
-      disabled: null,
-    }));
-  } finally {
-    isLoadingCities.value = false;
-  }
-}
-
-async function updateState(state: string): Promise<void> {
-  attributes.state.value = state || null;
-  attributes.city.value = null;
-  await fetchCities(state);
-}
 
 function updateCustomerType(value: string): void {
   if (isEditing.value) {
@@ -82,42 +44,6 @@ function updateCustomerType(value: string): void {
 
   customerForm.updateCustomerType(value);
 }
-
-function updateZipCode(zipCode: string): void {
-  attributes.zipCode.value = zipCode || null;
-  const normalizedZipCode = attributes.zipCode.value ?? '';
-
-  if (normalizedZipCode.length !== 8) {
-    return;
-  }
-
-  searchZipCode(normalizedZipCode);
-}
-
-const searchZipCode = debounce(async (zipCode: string): Promise<void> => {
-  try {
-    const address = await fetchViaCepAddress(zipCode);
-
-    if (address.erro) {
-      return;
-    }
-
-    attributes.street.value = address.logradouro ?? attributes.street.value;
-    attributes.complement.value = address.complemento ?? attributes.complement.value;
-    attributes.district.value = address.bairro ?? attributes.district.value;
-
-    if (address.uf) {
-      attributes.state.value = address.uf;
-      await fetchCities(address.uf);
-    }
-
-    if (address.localidade) {
-      attributes.city.value = address.localidade;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}, 1500);
 
 async function loadCustomer(): Promise<void> {
   if (props.id === null) {
@@ -154,10 +80,6 @@ async function save(): Promise<void> {
 onMounted(async (): Promise<void> => {
   await fetchStates();
   await loadCustomer();
-});
-
-onBeforeUnmount((): void => {
-  searchZipCode.cancel();
 });
 </script>
 
