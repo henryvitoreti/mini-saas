@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('permission_role', function (Blueprint $table) {
             $table->foreignId('role_id');
-            $table->bigInteger('permission_id');
+            $table->foreignId('permission_id');
+            $table->boolean('show_locked_routes')->default(false);
+            $table->boolean('is_active')->default(true);
         });
     }
 

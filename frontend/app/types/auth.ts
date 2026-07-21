@@ -1,11 +1,51 @@
+export type AuthenticatedPermission = {
+  id: number;
+  name: string;
+  slug: string;
+  base_front_url: string;
+  base_api_url: string;
+  show_locked_routes: boolean;
+  is_active: boolean;
+};
+
+export type AuthenticatedRole = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  is_active: boolean;
+};
+
+export type AuthenticatedCompany = {
+  id: number;
+  role_id: number|null;
+  name: string;
+  document: string;
+  email: string;
+  phone: string;
+  secondary_phone: string|null;
+  zip_code: string|null;
+  street: string|null;
+  number: string|null;
+  complement: string|null;
+  district: string|null;
+  city: string|null;
+  state: string|null;
+  logo_path: string|null;
+  notes: string|null;
+  role: AuthenticatedRole|null;
+  permissions: AuthenticatedPermission[];
+};
+
 export type AuthenticatedUser = {
   id: number;
-  role_id: number;
+  role_id: number|null;
   name: string;
   email: string;
   phone: string|null;
   is_active: boolean;
-  permissions: string[]|null;
+  permissions: AuthenticatedPermission[];
+  company: AuthenticatedCompany|null;
 };
 
 export type LoginResponse = {

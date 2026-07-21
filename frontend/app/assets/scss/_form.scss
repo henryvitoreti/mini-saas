@@ -604,7 +604,8 @@
   justify-content: center;
   width: 6px;
   height: 6px;
-  font-size: 6px;
+  font-size: 0.5rem;
+  padding-top: 0.1rem;
   line-height: 1;
   --fa-width: 6px;
 }
@@ -702,11 +703,36 @@ span.app-select2-option span {
   font-size: 0.8rem;
 }
 
-.app-select2-load-more {
-  min-height: 32px;
-  padding: 0.45rem 0.85rem;
+.app-select2-dropdown-state {
+  min-height: 42px;
+  padding: 0.55rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   color: var(--app-text-muted);
   font-size: 0.82rem;
+  text-align: center;
+}
+
+.app-select2-loading-icon {
+  font-size: 0.78rem;
+  animation: app-select2-spin 0.8s linear infinite;
+}
+
+.app-select2-load-more {
+  min-height: 1px;
+  padding: 0;
+}
+
+@keyframes app-select2-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .app-select2-required-input {
@@ -1009,4 +1035,10 @@ span.app-select2-option span {
     width: fit-content;
     align-self: center;
   }
+
+  .app-select2-clear-icon {
+    font-size: 0.47rem;
+    padding-top: 0rem;
+  }
+
 }

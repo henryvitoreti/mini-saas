@@ -37,6 +37,81 @@ function removeStoredToken(): void {
   localStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
+function getConfigValue(value: unknown): string|null {
+  if (typeof value !== 'string' || value === '') {
+    return null;
+  }
+
+  return value;
+}
+
+function createUrl(value: string|null, fallbackOrigin: string): URL|null {
+  if (value === null) {
+    return null;
+  }
+
+  try {
+    return new URL(value, fallbackOrigin);
+  } catch {
+    return null;
+  }
+}
+
+function getFrontendBaseHostname(frontendBaseUrl: string|null, apiBaseUrl: URL): string|null {
+  const fallbackOrigin = `${apiBaseUrl.protocol}//${apiBaseUrl.host}`;
+  const parsedFrontendBaseUrl = createUrl(frontendBaseUrl, fallbackOrigin);
+
+  if (parsedFrontendBaseUrl !== null) {
+    return parsedFrontendBaseUrl.hostname;
+  }
+
+  if (apiBaseUrl.hostname.startsWith('api.')) {
+    return apiBaseUrl.hostname.slice(4);
+  }
+
+  return null;
+}
+
+function getApiBaseUrl(apiBaseUrlValue: string, frontendBaseUrlValue: string|null): string {
+  if (!import.meta.client) {
+    return apiBaseUrlValue;
+  }
+
+  const apiBaseUrl = createUrl(apiBaseUrlValue, window.location.origin);
+
+  if (apiBaseUrl === null) {
+    return apiBaseUrlValue;
+  }
+
+  const frontendBaseHostname = getFrontendBaseHostname(frontendBaseUrlValue, apiBaseUrl);
+
+  if (frontendBaseHostname === null) {
+    return apiBaseUrl.toString();
+  }
+
+  const currentHostname = window.location.hostname;
+
+  if (currentHostname === frontendBaseHostname) {
+    return apiBaseUrl.toString();
+  }
+
+  const frontendBaseHostSuffix = `.${frontendBaseHostname}`;
+
+  if (!currentHostname.endsWith(frontendBaseHostSuffix)) {
+    return apiBaseUrl.toString();
+  }
+
+  const tenantSubdomain = currentHostname.slice(0, -frontendBaseHostSuffix.length);
+
+  if (tenantSubdomain === '' || tenantSubdomain.includes('.')) {
+    return apiBaseUrl.toString();
+  }
+
+  apiBaseUrl.hostname = `${tenantSubdomain}.${apiBaseUrl.hostname}`;
+
+  return apiBaseUrl.toString();
+}
+
 function mapValidationErrors(errors: Record<string, string[]>|undefined): ValidationErrors {
   if (!errors) {
     return {};
@@ -88,6 +163,9 @@ async function request<T>(
   options: AppFetchOptions = {},
 ): Promise<T> {
   const config = useRuntimeConfig();
+  const configuredApiBaseUrl = getConfigValue(config.public.apiBaseUrl) ?? '/api';
+  const frontendBaseUrl = getConfigValue(config.public.baseUrl);
+  const apiBaseUrl = getApiBaseUrl(configuredApiBaseUrl, frontendBaseUrl);
   const token = getStoredToken();
   const headers = new Headers(options.headers as HeadersInit|undefined);
   const { showGlobalLoading = true, ...fetchOptions } = options;
@@ -113,7 +191,7 @@ async function request<T>(
   try {
     return await $fetch<T>(endpoint, {
       ...fetchOptions,
-      baseURL: config.public.apiBaseUrl,
+      baseURL: apiBaseUrl,
       method,
       body,
       headers,

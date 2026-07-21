@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insertOrIgnore([
             'id' => 1,
-            'role_id' => 1,
             'name' => 'Admin',
             'email' => 'admin@saas.com',
             'password' => Hash::make('abc123'),

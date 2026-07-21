@@ -47,6 +47,8 @@ export type AppSelect2InputProps = {
   pageParam: string|null;
   perPageParam: string|null;
   perPage: number|null;
+  minSearchLength: number|null;
+  searchDebounceMs: number|null;
   errorMessage: string|null;
 };
 

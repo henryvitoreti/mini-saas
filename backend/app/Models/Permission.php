@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 class Permission extends Model
 {
+    use CentralConnection;
+
     protected $table = 'permissions';
 
     protected $fillable = [
@@ -13,8 +16,6 @@ class Permission extends Model
         'slug',
         'base_front_url',
         'base_api_url',
-        'show_locked_routes',
-        'is_active'
     ];
 
     /**
@@ -25,7 +26,7 @@ class Permission extends Model
         return [
             'id' => 'integer',
             'show_locked_routes' => 'boolean',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ];
     }
 }

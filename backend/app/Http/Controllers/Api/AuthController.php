@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\CompanyHelper;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Services\Auth\LoginService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +24,9 @@ class AuthController extends ApiBaseController
                 (string) $request->input('password'),
                 (bool) $request->input('remember_login')
             );
+            if (isset($response['user'])) {
+                $response['user'] = UserResource::make($response['user'])->resolve();
+            }
 
             return $this->successResponse(data: $response);
         } catch (ValidationException $validationException) {
@@ -40,6 +45,8 @@ class AuthController extends ApiBaseController
     {
         try {
             auth()->logout();
+            CompanyHelper::forgetCurrentCompanyResource();
+
             return $this->successResponse(message: 'Logout realizado com sucesso.');
         } catch (Exception $exception) {
             Log::error($exception->getMessage());

@@ -5,6 +5,7 @@ export type SidebarItem = {
     to?: string;
     allowed: boolean;
     show: boolean;
+    onlyAdmin?: boolean;
     opened?: boolean;
     children?: SidebarItem[];
 };
@@ -12,21 +13,21 @@ export type SidebarItem = {
 export const sidebarItems: SidebarItem[] = [
     {
         key: 'dashboard',
-        label: 'Dashboard',
+        label: 'Início',
         icon: 'fa-solid fa-gauge-high',
         to: '/',
         allowed: true,
         show: true,
     },
     {
-        key: 'cadastros',
+        key: 'registrations',
         label: 'Cadastros',
         icon: 'fa-solid fa-warehouse',
         allowed: true,
         show: true,
         children: [
             {
-                key: 'clientes',
+                key: 'customers',
                 label: 'Clientes',
                 icon: 'fa-solid fa-users',
                 to: '/clientes',
@@ -34,7 +35,7 @@ export const sidebarItems: SidebarItem[] = [
                 show: true,
             },
             {
-                key: 'veiculos',
+                key: 'vehicles',
                 label: 'Veículos',
                 icon: 'fa-solid fa-car',
                 to: '/veiculos',
@@ -44,14 +45,14 @@ export const sidebarItems: SidebarItem[] = [
         ],
     },
     {
-        key: 'operacional',
+        key: 'operational',
         label: 'Operacional',
         icon: 'fa-solid fa-screwdriver-wrench',
         allowed: false,
         show: true,
         children: [
             {
-                key: 'ordens-servico',
+                key: 'work-orders',
                 label: 'Ordens de Serviço',
                 icon: 'fa-solid fa-file-lines',
                 to: '/ordens-servico',
@@ -66,14 +67,14 @@ export const sidebarItems: SidebarItem[] = [
                 show: true,
                 children: [
                     {
-                        key: 'checklist-modelos',
+                        key: 'model-checklist',
                         label: 'Modelos',
                         to: '/checklists/modelos',
                         allowed: false,
                         show: true,
                     },
                     {
-                        key: 'checklist-historico',
+                        key: 'history-checklist',
                         label: 'Histórico',
                         to: '/checklists/historico',
                         allowed: false,
@@ -84,14 +85,14 @@ export const sidebarItems: SidebarItem[] = [
         ],
     },
     {
-        key: 'relatorios',
+        key: 'reports',
         label: 'Relatórios',
         icon: 'fa-solid fa-chart-line',
         allowed: false,
         show: true,
         children: [
             {
-                key: 'relatorio-os',
+                key: 'report-work-orders',
                 label: 'OS por status',
                 icon: 'fa-solid fa-circle-info',
                 to: '/relatorios/os',
@@ -99,11 +100,29 @@ export const sidebarItems: SidebarItem[] = [
                 show: true,
             },
             {
-                key: 'relatorio-produtividade',
+                key: 'report-produtivity',
                 label: 'Produtividade',
                 icon: 'fa-solid fa-chart-line',
                 to: '/relatorios/produtividade',
                 allowed: false,
+                show: true,
+            },
+        ],
+    },
+    {
+        key: 'admin',
+        label: 'Administrativo',
+        icon: 'fa-solid fa-user',
+        allowed: true,
+        show: true,
+        onlyAdmin: true,
+        children: [
+            {
+                key: 'domains',
+                label: 'Domínio',
+                icon: 'fa-solid fa-server',
+                to: '/dominios',
+                allowed: true,
                 show: true,
             },
         ],

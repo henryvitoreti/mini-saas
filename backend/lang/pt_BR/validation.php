@@ -152,6 +152,7 @@ return [
     'uuid' => 'O campo :attribute deve ser um UUID válido.',
 
     'attributes' => [
+        'id' => 'identificador',
         'name' => 'nome',
         'document' => 'documento',
         'email' => 'e-mail',
@@ -168,5 +169,8 @@ return [
         'state' => 'estado',
         'notes' => 'observações',
         'is_active' => 'status',
+        'company.document' => 'CNPJ',
+        'company.zip_code' => 'CEP',
+        '*.password' => 'senha',
     ],
 ];
