@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\CompanyHelper;
+use App\Helpers\CompanyPermissionHelper;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Services\Auth\LoginService;
@@ -44,6 +45,7 @@ class AuthController extends ApiBaseController
     public function logout(): JsonResponse
     {
         try {
+            CompanyPermissionHelper::forgetCurrentPermissions();
             auth()->logout();
             CompanyHelper::forgetCurrentCompanyResource();
 
@@ -56,6 +58,15 @@ class AuthController extends ApiBaseController
 
     public function check(): JsonResponse
     {
-        return $this->successResponse(code: 204);
+        $company = CompanyHelper::getCurrentCompanyResource();
+        $permissions = CompanyPermissionHelper::rememberCurrentPermissions();
+        $authenticatedUser = auth()->user();
+        $user = UserResource::make($authenticatedUser)->resolve();
+
+        return $this->successResponse(data: [
+            'user' => $user,
+            'company' => $company,
+            'permissions' => $permissions,
+        ]);
     }
 }

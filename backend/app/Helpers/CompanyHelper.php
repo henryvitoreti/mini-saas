@@ -34,7 +34,7 @@ class CompanyHelper
 
     private static function resolveCurrentCompanyResource(): array|null
     {
-        $company = app(CompanyRepository::class)->getCurrentCompanyWithRolePermissions();
+        $company = app(CompanyRepository::class)->getCurrentCompanyWithRole();
 
         if (!$company instanceof Company) {
             return null;

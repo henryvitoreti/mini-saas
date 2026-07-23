@@ -31,7 +31,6 @@ class CompanyResource extends JsonResource
             'logo_path' => $company->logo_path,
             'notes' => $company->notes,
             'role' => $this->formatRole($company),
-            'permissions' => $company->role?->permissions?->toArray() ?? [],
         ];
     }
 
