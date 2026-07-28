@@ -1,7 +1,13 @@
 import { apiHttpClient, type ApiResponse } from '@/services/api/http-client';
-import type { AuthenticatedSession, LoginPayload, LoginResponse } from '@/types/auth';
+import type {
+  AuthenticatedPermissions,
+  AuthenticatedSession,
+  LoginPayload,
+  LoginResponse,
+} from '@/types/auth';
 
 const AUTH_SESSION_STORAGE_KEY = 'auth.session';
+const AUTH_PERMISSIONS_STORAGE_KEY = 'auth.permissions';
 const LEGACY_AUTH_USER_STORAGE_KEY = 'auth.user';
 
 function getStoredAuthSession(): AuthenticatedSession|null {
@@ -19,17 +25,52 @@ function getStoredAuthSession(): AuthenticatedSession|null {
     return JSON.parse(storedSession) as AuthenticatedSession;
   } catch {
     localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+    localStorage.removeItem(AUTH_PERMISSIONS_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_AUTH_USER_STORAGE_KEY);
     return null;
   }
 }
 
-function setStoredAuthSession(session: AuthenticatedSession): void {
+function getStoredAuthPermissions(): AuthenticatedPermissions {
+  if (!import.meta.client) {
+    return [];
+  }
+
+  const storedPermissions = localStorage.getItem(AUTH_PERMISSIONS_STORAGE_KEY);
+
+  if (!storedPermissions) {
+    return [];
+  }
+
+  try {
+    const permissions = JSON.parse(storedPermissions);
+
+    return Array.isArray(permissions) ? (permissions as AuthenticatedPermissions) : [];
+  } catch {
+    localStorage.removeItem(AUTH_PERMISSIONS_STORAGE_KEY);
+    return [];
+  }
+}
+
+function setStoredAuthSessionAndPermissions(
+  session: AuthenticatedSession,
+  permissions: AuthenticatedPermissions,
+): void {
   if (!import.meta.client) {
     return;
   }
 
   localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(session));
+  setStoredAuthPermissions(permissions);
   localStorage.removeItem(LEGACY_AUTH_USER_STORAGE_KEY);
+}
+
+function setStoredAuthPermissions(permissions: AuthenticatedPermissions): void {
+  if (!import.meta.client) {
+    return;
+  }
+
+  localStorage.setItem(AUTH_PERMISSIONS_STORAGE_KEY, JSON.stringify(permissions));
 }
 
 function removeStoredAuthSession(): void {
@@ -38,18 +79,21 @@ function removeStoredAuthSession(): void {
   }
 
   localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+  localStorage.removeItem(AUTH_PERMISSIONS_STORAGE_KEY);
   localStorage.removeItem(LEGACY_AUTH_USER_STORAGE_KEY);
 }
 
 function createAuthSession(session: AuthenticatedSession): AuthenticatedSession {
-  const permissions = session.permissions ?? [];
   const company = session.company ?? null;
 
   return {
     user: session.user,
     company,
-    permissions,
   };
+}
+
+function createAuthPermissions(permissions: AuthenticatedPermissions|null|undefined): AuthenticatedPermissions {
+  return Array.isArray(permissions) ? permissions : [];
 }
 
 export async function login(email: string, password: string, rememberLogin = false): Promise<LoginResponse> {
@@ -61,11 +105,14 @@ export async function login(email: string, password: string, rememberLogin = fal
 
   apiHttpClient.setToken(response.data.access_token);
   const session = createAuthSession(response.data);
-  setStoredAuthSession(session);
+  const permissions = createAuthPermissions(response.data.permissions);
+
+  setStoredAuthSessionAndPermissions(session, permissions);
 
   return {
     ...response.data,
     ...session,
+    permissions,
   };
 }
 
@@ -80,13 +127,20 @@ export async function logout(): Promise<void> {
   }
 }
 
-export async function checkAuthToken(): Promise<AuthenticatedSession> {
-  const response = await apiHttpClient.get<ApiResponse<AuthenticatedSession>>('/auth/check');
-  const session = createAuthSession(response.data);
+export async function checkAuthToken(): Promise<void> {
+  await apiHttpClient.get<void>('/auth/check', { showGlobalLoading: false });
+}
 
-  setStoredAuthSession(session);
+export async function refreshAuthPermissions(): Promise<AuthenticatedPermissions> {
+  const response = await apiHttpClient.get<ApiResponse<{ permissions: AuthenticatedPermissions }>>(
+    '/auth/permissions',
+    { showGlobalLoading: false },
+  );
 
-  return session;
+  const permissions = createAuthPermissions(response.data.permissions);
+  setStoredAuthPermissions(permissions);
+
+  return permissions;
 }
 
 export function getAuthToken(): string|null {
@@ -100,4 +154,8 @@ export function removeAuthToken(): void {
 
 export function getAuthSession(): AuthenticatedSession|null {
   return getStoredAuthSession();
+}
+
+export function getAuthPermissions(): AuthenticatedPermissions {
+  return getStoredAuthPermissions();
 }

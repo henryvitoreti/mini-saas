@@ -58,15 +58,13 @@ class AuthController extends ApiBaseController
 
     public function check(): JsonResponse
     {
-        $company = CompanyHelper::getCurrentCompanyResource();
-        $permissions = CompanyPermissionHelper::rememberCurrentPermissions();
-        $authenticatedUser = auth()->user();
-        $user = UserResource::make($authenticatedUser)->resolve();
+        return $this->successResponse(code: 204);
+    }
 
+    public function refreshPermissions(): JsonResponse
+    {
         return $this->successResponse(data: [
-            'user' => $user,
-            'company' => $company,
-            'permissions' => $permissions,
+            'permissions' => CompanyPermissionHelper::rememberCurrentPermissions(),
         ]);
     }
 }

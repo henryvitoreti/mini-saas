@@ -14,8 +14,8 @@ class PermissionSeeder extends Seeder
         [
             'name' => 'Clientes',
             'slug' => 'customers',
-            'base_front_url' => 'api/customers',
-            'base_api_url' => 'clientes',
+            'base_api_url' => 'api/customers',
+            'base_front_url' => 'clientes',
         ]
     ];
 

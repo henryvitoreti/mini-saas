@@ -12,6 +12,12 @@ class CompanyPermissionHelper
 {
     private const int CACHE_TTL_MINUTES = 30;
 
+    public static function getCurrentRoleId(): int|null
+    {
+        $company = app(CompanyRepository::class)->getCurrentCompany();
+        return $company?->role_id ?? null;
+    }
+
     /**
      * @return array<int,array<string,mixed>>
      */
@@ -44,18 +50,15 @@ class CompanyPermissionHelper
      */
     private static function resolveCurrentPermissions(): array
     {
-        $company = app(CompanyRepository::class)->getCurrentCompany();
+        $roleId = self::getCurrentRoleId();
 
-        if (!$company instanceof Company || $company->role_id === null) {
+        if ($roleId === null) {
             return [];
         }
 
-        $permissions = app(PermissionRepository::class)->getByRoleId((int)$company->role_id);
+        $permissions = app(PermissionRepository::class)->getByRoleId($roleId);
 
-        return $permissions
-            ->map(fn (Permission $permission): array => self::formatPermission($permission))
-            ->values()
-            ->all();
+        return $permissions?->toArray();
     }
 
     /**

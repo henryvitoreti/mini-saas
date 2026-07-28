@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('base_front_url');
             $table->string('base_api_url');
             $table->timestamps();
+
+            $table->index('base_api_url');
         });
     }
 

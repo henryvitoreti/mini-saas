@@ -47,10 +47,13 @@ export type AuthenticatedUser = {
 export type AuthenticatedSession = {
   user: AuthenticatedUser;
   company: AuthenticatedCompany|null;
-  permissions: AuthenticatedPermission[];
 };
 
-export type LoginResponse = AuthenticatedSession & {
+export type AuthenticatedPermissions = AuthenticatedPermission[];
+
+export type AuthenticatedContext = AuthenticatedSession & { permissions: AuthenticatedPermissions; };
+
+export type LoginResponse = AuthenticatedContext & {
   token_type: string;
   expires_in: number;
   access_token: string;

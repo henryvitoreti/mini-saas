@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('permission_id');
             $table->boolean('show_locked_routes')->default(false);
             $table->boolean('is_active')->default(true);
+
+            $table->index(['role_id', 'is_active', 'permission_id']);
         });
     }
 

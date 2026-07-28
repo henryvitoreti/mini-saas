@@ -1,14 +1,16 @@
 import {
   checkAuthToken,
+  getAuthPermissions,
   getAuthSession,
   getAuthToken,
   login as loginRequest,
   logout as logoutRequest,
   removeAuthToken,
+  refreshAuthPermissions,
 } from '@/services/api/auth-service';
 import type {
   AuthenticatedCompany,
-  AuthenticatedPermission,
+  AuthenticatedPermissions,
   AuthenticatedSession,
   AuthenticatedUser,
 } from '@/types/auth';
@@ -19,7 +21,10 @@ export function useAuth() {
   const session = useState<AuthenticatedSession|null>('auth.session', () => initialToken ? getAuthSession() : null);
   const user = useState<AuthenticatedUser|null>('auth.user', () => session.value?.user ?? null);
   const company = useState<AuthenticatedCompany|null>('auth.company', () => session.value?.company ?? null);
-  const permissions = useState<AuthenticatedPermission[]>('auth.permissions', () => session.value?.permissions ?? []);
+  const permissions = useState<AuthenticatedPermissions>(
+    'auth.permissions',
+    () => initialToken ? getAuthPermissions() : [],
+  );
 
   const isAuthenticated = computed<boolean>(() => Boolean(token.value));
 
@@ -27,7 +32,21 @@ export function useAuth() {
     session.value = nextSession;
     user.value = nextSession?.user ?? null;
     company.value = nextSession?.company ?? null;
-    permissions.value = nextSession?.permissions ?? [];
+  }
+
+  function setPermissions(nextPermissions: AuthenticatedPermissions): void {
+    permissions.value = nextPermissions;
+  }
+
+  function clearAuthentication(): void {
+    removeAuthToken();
+    token.value = null;
+    setSession(null);
+    setPermissions([]);
+  }
+
+  async function refreshPermissions(): Promise<void> {
+    setPermissions(await refreshAuthPermissions());
   }
 
   async function login(email: string, password: string, rememberLogin = false): Promise<void> {
@@ -37,8 +56,8 @@ export function useAuth() {
     setSession({
       user: response.user,
       company: response.company,
-      permissions: response.permissions,
     });
+    setPermissions(response.permissions);
 
     await navigateTo('/');
   }
@@ -47,27 +66,24 @@ export function useAuth() {
     await logoutRequest();
     token.value = null;
     setSession(null);
+    setPermissions([]);
 
     await navigateTo('/login');
   }
 
   async function validateToken(): Promise<boolean> {
-    token.value = getAuthToken();
+    const storedToken = getAuthToken();
 
-    if (!token.value) {
-      removeAuthToken();
-      setSession(null);
+    if (!storedToken) {
+      clearAuthentication();
       return false;
     }
 
     try {
-      const nextSession = await checkAuthToken();
-      setSession(nextSession);
+      await checkAuthToken();
       return true;
     } catch {
-      removeAuthToken();
-      token.value = null;
-      setSession(null);
+      clearAuthentication();
       return false;
     }
   }
@@ -81,6 +97,7 @@ export function useAuth() {
     isAuthenticated,
     login,
     logout,
+    refreshPermissions,
     validateToken,
   };
 }

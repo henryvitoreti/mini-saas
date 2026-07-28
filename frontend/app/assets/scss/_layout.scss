@@ -414,32 +414,16 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background:
-    linear-gradient(rgba(246, 248, 251, 0.68), rgba(246, 248, 251, 0.68)),
-    url('/images/background-login.png') center / cover no-repeat,
-    var(--app-bg);
-}
-
-[data-theme='dark'] .app-login-page {
-  background:
-    linear-gradient(rgba(53, 53, 53, 0.72), rgba(53, 53, 53, 0.72)),
-    url('/images/background-login.png') center / cover no-repeat,
-    var(--app-bg);
+  background: url('/images/background-login.png') center / cover no-repeat;
 }
 
 @media (max-width: 1024px) {
-  .app-login-page {
-    background:
-      linear-gradient(rgba(246, 248, 251, 0.68), rgba(246, 248, 251, 0.68)),
-      url('/images/background-login-small.png') center / cover no-repeat,
-      var(--app-bg);
+  .app-login-card {
+    opacity: .8;
   }
 
-  [data-theme='dark'] .app-login-page {
-    background:
-      linear-gradient(rgba(53, 53, 53, 0.72), rgba(53, 53, 53, 0.72)),
-      url('/images/background-login-small.png') center / cover no-repeat,
-      var(--app-bg);
+  .app-login-page {
+    background: url('/images/background-login-small.png') center / cover no-repeat;
   }
 }
 
