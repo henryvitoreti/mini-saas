@@ -53,7 +53,7 @@ class TenantService
             $roleId = (int)$data['company']['role_id'];
             $this->ensureActiveRole($roleId);
 
-            $tenant = $this->createTenant($data);
+            $tenant = $this->createTenant($data, $roleId);
             $this->createTenantInitialData($tenant, $data, $roleId);
 
             return $this->tenantRepository->findWithDomains($tenant->id);
@@ -85,12 +85,12 @@ class TenantService
         $this->ensureActiveRole($roleId);
 
         $this->updateTenantCompanyData($tenant, $companyData, $roleId);
-        $this->updateTenantCentralData($tenant, $companyData);
+        $this->updateTenantCentralData($tenant, $companyData, $roleId);
 
         return $this->show($tenant->id);
     }
 
-    private function createTenant(array $data): Tenant
+    private function createTenant(array $data, int $roleId): Tenant
     {
         $slug = (string) $data['id'];
         $domain = $this->buildApiDomain($slug);
@@ -102,6 +102,7 @@ class TenantService
         $tenant = $this->tenantRepository->create([
             'id' => $slug,
             'active' => true,
+            'role_id' => $roleId,
             'data' => [
                 'name' => $data['company']['name'],
             ],
@@ -165,11 +166,12 @@ class TenantService
         }
     }
 
-    private function updateTenantCentralData(Tenant $tenant, array $companyData): void
+    private function updateTenantCentralData(Tenant $tenant, array $companyData, int $roleId): void
     {
         $tenantData = is_array($tenant->data) ? $tenant->data : [];
         $tenantData['name'] = $companyData['name'];
 
+        $tenant->role_id = $roleId;
         $tenant->data = $tenantData;
         $tenant->save();
     }

@@ -11,15 +11,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerController extends ApiBaseController
 {
-    public function __construct(private readonly CustomerService $customerService)
+    public function __construct(private readonly CustomerService $service)
     {}
 
     public function index(Request $request): JsonResponse
     {
         $this->useSimpleResourceForList($request);
 
-        $customers = $this->customerService->index($request);
-        $data = $this->paginatedResponse($customers, CustomerResource::class);
+        $items = $this->service->index($request);
+        $data = $this->paginatedResponse($items, CustomerResource::class);
 
         return $this->successResponse(data: $data);
     }
@@ -28,31 +28,31 @@ class CustomerController extends ApiBaseController
     {
         $this->useSimpleResourceForList($request);
 
-        $customers = $this->customerService->search($request);
-        $data = CustomerResource::collection($customers)->resolve();
+        $items = $this->service->search($request);
+        $data = CustomerResource::collection($items)->resolve();
 
         return $this->successResponse(data: $data);
     }
 
     public function options(Request $request): JsonResponse
     {
-        $options = $this->customerService->options($request);
+        $options = $this->service->options($request);
 
         return $this->successResponse(data: compact('options'));
     }
 
     public function show(int $id): JsonResponse
     {
-        $customer = $this->customerService->show($id);
-        $data = CustomerResource::make($customer)->resolve();
+        $item = $this->service->show($id);
+        $data = CustomerResource::make($item)->resolve();
 
         return $this->successResponse(data: $data);
     }
 
     public function store(CustomerRequest $request): JsonResponse
     {
-        $customer = $this->customerService->store($request->validated());
-        $data = CustomerResource::make($customer)->resolve();
+        $item = $this->service->store($request->validated());
+        $data = CustomerResource::make($item)->resolve();
 
         return $this->successResponse(
             data: $data,
@@ -63,13 +63,13 @@ class CustomerController extends ApiBaseController
 
     public function update(CustomerRequest $request, int $id): JsonResponse
     {
-        $customer = $this->customerService->update($id, $request->validated());
+        $item = $this->service->update($id, $request->validated());
 
-        if ($customer === null) {
+        if ($item === null) {
             return $this->errorResponse(message: 'Cliente não encontrado.', code: Response::HTTP_NOT_FOUND);
         }
 
-        $data = CustomerResource::make($customer)->resolve();
+        $data = CustomerResource::make($item)->resolve();
 
         return $this->successResponse(
             data: $data,
@@ -79,7 +79,7 @@ class CustomerController extends ApiBaseController
 
     public function delete(int $id): JsonResponse
     {
-        if (!$this->customerService->delete($id)) {
+        if (!$this->service->delete($id)) {
             return $this->errorResponse(message: 'Cliente não encontrado.', code: Response::HTTP_NOT_FOUND);
         }
 

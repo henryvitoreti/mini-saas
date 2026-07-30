@@ -34,25 +34,29 @@ export type AuthenticatedCompany = {
   logo_path: string|null;
   notes: string|null;
   role: AuthenticatedRole|null;
-  permissions: AuthenticatedPermission[];
 };
 
 export type AuthenticatedUser = {
   id: number;
-  role_id: number|null;
   name: string;
   email: string;
   phone: string|null;
   is_active: boolean;
-  permissions: AuthenticatedPermission[];
+};
+
+export type AuthenticatedSession = {
+  user: AuthenticatedUser;
   company: AuthenticatedCompany|null;
 };
 
-export type LoginResponse = {
+export type AuthenticatedPermissions = AuthenticatedPermission[];
+
+export type AuthenticatedContext = AuthenticatedSession & { permissions: AuthenticatedPermissions; };
+
+export type LoginResponse = AuthenticatedContext & {
   token_type: string;
   expires_in: number;
   access_token: string;
-  user: AuthenticatedUser;
 };
 
 export type LoginPayload = {

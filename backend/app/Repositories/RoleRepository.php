@@ -17,6 +17,7 @@ class RoleRepository extends BaseRepository
         'name' => 'like',
         'slug',
         'is_active',
+        'can_modify',
     ];
 
     public function model(): string
@@ -24,18 +25,25 @@ class RoleRepository extends BaseRepository
         return Role::class;
     }
 
-    public function findActiveById(int $id): Role|null
+    public function findActiveById(int $id): ?Role
     {
         return $this->query()
             ->where('is_active', true)
             ->find($id);
     }
 
-    public function firstById(array $columns = ['*']): Role|null
+    public function firstById(array $columns = ['*']): ?Role
     {
         return $this->query()
             ->orderBy('id')
             ->first($columns);
+    }
+
+    public function findWithPermissions(int $id): ?Role
+    {
+        return $this->query()
+            ->with('permissions')
+            ->find($id);
     }
 
     public function getOptions(Request $request): array

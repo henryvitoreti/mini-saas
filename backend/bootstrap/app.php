@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\InitializeTenantByDomain;
+use App\Http\Middleware\EnsureBaseTenant;
+use App\Http\Middleware\EnsureCompanyPermission;
 use App\Http\Middleware\PreventConcurrentMutableRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(HandleCors::class);
         $middleware->alias([
+            'tenant.base' => EnsureBaseTenant::class,
+            'company.permission' => EnsureCompanyPermission::class,
             'tenant.domain' => InitializeTenantByDomain::class,
             'mutable.request.lock' => PreventConcurrentMutableRequests::class,
         ]);

@@ -16,10 +16,10 @@ class CompanyRepository extends BaseRepository
         return $this->query()->first();
     }
 
-    public function getCurrentCompanyWithRolePermissions(): Company|null
+    public function getCurrentCompanyWithRole(): Company|null
     {
         return $this->query()
-            ->with('role.permissions')
+            ->with('role')
             ->find(1);
     }
 

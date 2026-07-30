@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { getLogo, getLogoIcon } from '@/config/appLogos';
-import { sidebarItems, type SidebarItem } from '@/config/sidebarItems';
+import { createSidebarItems, type SidebarItem } from '@/config/sidebarItems';
 import type { AppSidebarProps } from '@/types/ui/layout';
 
 const props = defineProps<AppSidebarProps>();
@@ -10,9 +10,13 @@ const emit = defineEmits<{
   closeSidebar: [];
 }>();
 
-const menus = reactive<SidebarItem[]>(sidebarItems);
 const route = useRoute();
 const auth = useAuth();
+const menus = reactive<SidebarItem[]>(createSidebarItems(auth.permissions.value));
+
+watch(auth.permissions, (permissions): void => {
+  menus.splice(0, menus.length, ...createSidebarItems(permissions));
+});
 
 const sidebarCollapsed = useState<boolean>('sidebar-collapsed', () => false);
 const sidebarUsesCollapsedLayout = computed<boolean>(() => sidebarCollapsed.value && !props.sidebarOpen);

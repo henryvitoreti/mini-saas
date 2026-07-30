@@ -18,6 +18,7 @@ class RoleSeeder extends Seeder
             'slug' => 'admin',
             'description' => 'Acesso total ao sistema.',
             'is_active' => true,
+            'can_modify' => false,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -1,4 +1,6 @@
 import type { FetchOptions } from 'ofetch';
+import { handleDomainPermissionDenied } from '@/services/api/domain-permission-denied-handler';
+import { handleForceNotFound } from '@/services/api/force-not-found-handler';
 import {
   ApiValidationError,
   type ApiErrorResponse,
@@ -122,31 +124,39 @@ function mapValidationErrors(errors: Record<string, string[]>|undefined): Valida
   );
 }
 
-function handleRequestError(error: unknown): never {
-  if (
-    typeof error === 'object'
+function getApiErrorResponse(error: unknown): ApiErrorResponse|null {
+  if (typeof error !== 'object' || error === null || !('data' in error)) {
+    return null;
+  }
+
+  const response = (error as { data?: unknown }).data;
+
+  return typeof response === 'object' && response !== null
+    ? response as ApiErrorResponse
+    : null;
+}
+
+function isHttpError(error: unknown, statusCode: number): boolean {
+  return typeof error === 'object'
     && error !== null
     && 'statusCode' in error
-    && (error as { statusCode?: number }).statusCode === 429
-  ) {
-    const response = (error as { data?: ApiErrorResponse }).data;
+    && (error as { statusCode?: number }).statusCode === statusCode;
+}
+
+async function handleRequestError(error: unknown): Promise<never> {
+  const response = getApiErrorResponse(error);
+
+  if (isHttpError(error, 404)) {
+    handleForceNotFound(response);
+  } else if (isHttpError(error, 403)) {
+    await handleDomainPermissionDenied(response);
+  } else if (isHttpError(error, 429)) {
     const message = response?.message ?? 'Múltiplas requisições detectadas. Aguarde alguns instantes.';
 
     if (import.meta.client) {
       useAppToast().error(message);
     }
-
-    throw error;
-  }
-
-  if (
-    typeof error === 'object'
-    && error !== null
-    && 'statusCode' in error
-    && (error as { statusCode?: number }).statusCode === 422
-  ) {
-    const response = (error as { data?: ApiErrorResponse }).data;
-
+  } else if (isHttpError(error, 422)) {
     throw new ApiValidationError(
       mapValidationErrors(response?.errors),
       response?.message ?? 'Verifique os campos informados.',
@@ -197,7 +207,7 @@ async function request<T>(
       headers,
     });
   } catch (error) {
-    handleRequestError(error);
+    await handleRequestError(error);
   } finally {
     if (usesGlobalLoading) {
       requestLoading.stopLoading();

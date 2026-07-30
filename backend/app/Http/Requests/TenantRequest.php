@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\PersonType;
+use App\Helpers\ConnectionHelper;
 use App\Models\Domain;
 use App\Rules\ValidateDocument;
 use Closure;
@@ -60,7 +61,7 @@ class TenantRequest extends FormRequest
             'company.role_id' => [
                 'required',
                 'integer',
-                Rule::exists($this->centralTable('roles'), 'id')
+                Rule::exists(ConnectionHelper::centralTable('roles'), 'id')
                     ->where('is_active', true)
                     ->whereNull('deleted_at'),
             ],
@@ -96,7 +97,7 @@ class TenantRequest extends FormRequest
                 'min:3',
                 'max:63',
                 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-                Rule::unique($this->centralTable('tenants'), 'id'),
+                Rule::unique(ConnectionHelper::centralTable('tenants'), 'id'),
                 $this->uniqueDomainRule(),
             ],
             'company.document' => ['required', 'string', 'size:14', new ValidateDocument(PersonType::COMPANY)],
@@ -122,25 +123,9 @@ class TenantRequest extends FormRequest
         return function (string $attribute, mixed $value, Closure $fail): void {
             $domain = Domain::buildApiDomain((string)$value);
 
-            if (Domain::on($this->centralConnection())->where('domain', $domain)->exists()) {
+            if (Domain::on(ConnectionHelper::centralConnection())->where('domain', $domain)->exists()) {
                 $fail('O domínio informado já está em uso.');
             }
         };
-    }
-
-    private function centralTable(string $table): string
-    {
-        return $this->centralConnection().'.'.$table;
-    }
-
-    private function centralConnection(): string
-    {
-        $connection = config('tenancy.database.central_connection', config('database.default'));
-
-        if (!is_string($connection) || $connection === '') {
-            return 'pgsql';
-        }
-
-        return $connection;
     }
 }

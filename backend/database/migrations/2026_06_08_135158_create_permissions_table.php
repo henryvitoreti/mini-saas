@@ -17,7 +17,11 @@ return new class extends Migration
             $table->string('slug');
             $table->string('base_front_url');
             $table->string('base_api_url');
+            $table->string('group')->nullable();
+            $table->boolean('is_base')->default(false);
             $table->timestamps();
+
+            $table->index('base_api_url');
         });
     }
 

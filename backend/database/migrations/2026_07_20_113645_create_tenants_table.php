@@ -18,6 +18,7 @@ class CreateTenantsTable extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->boolean('active')->default(true);
+            $table->foreignId('role_id');
             $table->timestamps();
             $table->softDeletes();
             $table->json('data')->nullable();

@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('can_modify')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

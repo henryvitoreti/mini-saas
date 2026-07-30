@@ -21,11 +21,23 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected $fillable = [
         'id',
         'active',
+        'role_id',
         'data',
     ];
 
     protected $casts = [
         'active' => 'boolean',
+        'role_id' => 'integer',
         'data' => 'array',
     ];
+
+    public static function getCustomColumns(): array
+    {
+        return [
+            'id',
+            'active',
+            'role_id',
+            'data',
+        ];
+    }
 }
