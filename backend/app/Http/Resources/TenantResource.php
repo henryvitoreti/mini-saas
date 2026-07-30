@@ -49,7 +49,7 @@ class TenantResource extends JsonResource
             'name' => $companyData['name'] ?? $data['name'] ?? $tenant->id,
             'domain' => $domain instanceof Domain ? $domain->frontend_domain : null,
             'active' => $tenant->active,
-            'role_id' => $companyData['role_id'] ?? null,
+            'role_id' => $companyData['role_id'] ?? $tenant->role_id,
             'document' => $companyData['document'] ?? null,
             'email' => $companyData['email'] ?? null,
             'phone' => $companyData['phone'] ?? null,

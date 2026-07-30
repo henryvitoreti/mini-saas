@@ -84,6 +84,207 @@
   padding: 1.25rem;
 }
 
+.app-grouped-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: visible;
+}
+
+.app-grouped-list-section {
+  position: relative;
+  overflow: visible;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+}
+
+.app-grouped-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--app-border);
+  border-radius: 8px 8px 0 0;
+  background: var(--app-surface-soft);
+}
+
+.app-grouped-list-section.is-collapsed .app-grouped-list-header {
+  border-bottom: 0;
+  border-radius: 8px;
+}
+
+.app-grouped-list-header-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.app-grouped-list-header-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.app-grouped-list-selector {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.app-grouped-list-checkbox {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  flex: 0 0 18px;
+  margin: 0;
+  appearance: none;
+  place-content: center;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  background: var(--app-surface);
+  color: #fff;
+  cursor: pointer;
+}
+
+.app-grouped-list-checkbox:checked,
+.app-grouped-list-checkbox:indeterminate,
+.app-grouped-list-checkbox.is-checked,
+.app-grouped-list-checkbox.is-indeterminate {
+  border-color: var(--app-primary);
+  background: var(--app-primary);
+}
+
+.app-grouped-list-checkbox:checked::before,
+.app-grouped-list-checkbox.is-checked::before {
+  content: '✓';
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.app-grouped-list-checkbox:indeterminate::before,
+.app-grouped-list-checkbox.is-indeterminate::before {
+  content: '−';
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 0.75;
+}
+
+.app-grouped-list-checkbox:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(80, 143, 255, 0.16);
+}
+
+.app-grouped-list-count {
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.app-grouped-list-toggle {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.app-grouped-list-toggle:hover {
+  border-color: var(--app-primary);
+  color: var(--app-primary);
+  background: rgba(80, 143, 255, 0.08);
+}
+
+.app-grouped-list-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(80, 143, 255, 0.16);
+}
+
+.app-grouped-list-toggle i {
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.app-grouped-list-items {
+  position: relative;
+  overflow: visible;
+}
+
+.app-grouped-list-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) minmax(190px, auto);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-grouped-list-row:hover,
+.app-grouped-list-row:focus-within {
+  z-index: 2;
+}
+
+.app-grouped-list-row:last-child {
+  border-bottom: 0;
+}
+
+.app-grouped-list-item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: var(--app-text);
+}
+
+.app-grouped-list-item-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-grouped-list-item-heading .app-badge {
+  min-height: auto;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.68rem;
+}
+
+.app-grouped-list-item > span {
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-grouped-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 96px;
+  padding: 1rem;
+  border: 1px dashed var(--app-border);
+  border-radius: 8px;
+  color: var(--app-text-muted);
+}
+
 .app-form-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -112,6 +313,13 @@
 
 .app-form-col-2 {
   grid-column: span 2;
+}
+
+@media (max-width: 767.98px) {
+  .app-grouped-list-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
 }
 
 .app-form-group {

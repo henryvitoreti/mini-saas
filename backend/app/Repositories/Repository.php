@@ -74,12 +74,12 @@ abstract class Repository
         return $this->query()->first($columns);
     }
 
-    public function create(array $data): Model
+    public function create(array $data): Model|null
     {
         return $this->query()->create($data);
     }
 
-    public function firstOrCreate(array $attributes, array $values = []): Model
+    public function firstOrCreate(array $attributes, array $values = []): Model|null
     {
         return $this->query()->firstOrCreate($attributes, $values);
     }

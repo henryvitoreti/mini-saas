@@ -20,6 +20,8 @@ export type TableColumnValueFormatter = (value: unknown, row: TableRow) => strin
 
 export type TableColumnBadgeClassResolver = (value: unknown, row: TableRow) => string|null;
 
+export type TableBeforeAction = (row: TableRow) => boolean|string;
+
 export type TableColumn = {
   label: string;
   name: string;
@@ -84,4 +86,6 @@ export type AppDataTableProps = {
   defaultLimit: number|null;
   limitOptions: number[]|null;
   withDetails: boolean|null;
+  beforeEdit?: TableBeforeAction|null;
+  beforeDelete?: TableBeforeAction|null;
 };

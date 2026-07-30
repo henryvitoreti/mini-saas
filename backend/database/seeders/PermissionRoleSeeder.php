@@ -15,9 +15,11 @@ class PermissionRoleSeeder extends Seeder
         $permissions = app(PermissionRepository::class)->get();
 
         foreach ($permissions as $permission) {
-            $permission->roles()->sync(1, [
-                'show_locked_routes' => false,
-                'is_active' => true,
+            $permission->roles()->syncWithoutDetaching([
+                1 => [
+                    'show_locked_routes' => false,
+                    'is_active' => true,
+                ],
             ]);
         }
     }

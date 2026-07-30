@@ -8,9 +8,39 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PermissionRepository extends BaseRepository
 {
+    protected array $searchFields = [
+        'name' => 'like',
+        'slug' => 'like',
+        'base_front_url' => 'like',
+        'base_api_url' => 'like',
+        'group' => 'like',
+    ];
+
+    protected array $filterFields = [
+        'id',
+        'name' => 'like',
+        'slug',
+        'base_front_url' => 'like',
+        'base_api_url' => 'like',
+        'group',
+        'is_base',
+    ];
+
     public function model(): string
     {
         return Permission::class;
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    public function getBasePermissionIds(): array
+    {
+        return $this->query()
+            ->where('is_base', true)
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all();
     }
 
     /**
@@ -42,7 +72,7 @@ class PermissionRepository extends BaseRepository
             return false;
         }
 
-        $role = new Role();
+        $role = new Role;
         $role->setAttribute($role->getKeyName(), $roleId);
 
         return $role->permissions()

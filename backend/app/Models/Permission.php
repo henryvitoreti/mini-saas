@@ -17,6 +17,8 @@ class Permission extends Model
         'slug',
         'base_front_url',
         'base_api_url',
+        'group',
+        'is_base',
     ];
 
     /**
@@ -26,6 +28,7 @@ class Permission extends Model
     {
         return [
             'id' => 'integer',
+            'is_base' => 'boolean',
             'show_locked_routes' => 'boolean',
             'is_active' => 'boolean',
         ];
@@ -33,6 +36,7 @@ class Permission extends Model
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'permission_role', 'permission_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'permission_role', 'permission_id', 'role_id')
+            ->withPivot(['show_locked_routes', 'is_active']);
     }
 }

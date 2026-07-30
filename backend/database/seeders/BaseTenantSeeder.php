@@ -20,6 +20,7 @@ class BaseTenantSeeder extends Seeder
             ],
             [
                 'active' => true,
+                'role_id' => 1,
             ],
         );
 

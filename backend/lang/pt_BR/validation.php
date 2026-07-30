@@ -172,5 +172,6 @@ return [
         'company.document' => 'CNPJ',
         'company.zip_code' => 'CEP',
         '*.password' => 'senha',
+        'description' => 'descrição',
     ],
 ];

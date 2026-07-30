@@ -16,7 +16,9 @@ class PermissionSeeder extends Seeder
             'slug' => 'customers',
             'base_api_url' => 'api/customers',
             'base_front_url' => 'clientes',
-        ]
+            'group' => 'Cadastros',
+            'is_base' => true,
+        ],
     ];
 
     public function run(): void

@@ -91,6 +91,8 @@ const props = withDefaults(
     limitOptions: () => [10, 20, 50, 100],
     withDetails: true,
     filterCountGroups: null,
+    beforeEdit: null,
+    beforeDelete: null,
   },
 );
 
@@ -618,6 +620,36 @@ function handleEdit(row: TableRow): void {
   router.push(`${props.baseUrl}/${row.id}/editar`);
 }
 
+function requestEdit(row: TableRow): void {
+  const beforeEditResult = props.beforeEdit?.(row) ?? true;
+
+  if (beforeEditResult !== true) {
+    const message = typeof beforeEditResult === 'string' && beforeEditResult !== ''
+      ? beforeEditResult
+      : `Este ${activeEntityLabel.value} não pode ser editado.`;
+
+    toast.warning(message);
+    return;
+  }
+
+  handleEdit(row);
+}
+
+function requestDelete(row: TableRow): void {
+  const beforeDeleteResult = props.beforeDelete?.(row) ?? true;
+
+  if (beforeDeleteResult !== true) {
+    const message = typeof beforeDeleteResult === 'string' && beforeDeleteResult !== ''
+      ? beforeDeleteResult
+      : `Este ${activeEntityLabel.value} não pode ser excluído.`;
+
+    toast.warning(message);
+    return;
+  }
+
+  handleDelete(row);
+}
+
 function handleDelete(row: TableRow): void {
   rowToDelete.value = row;
 }
@@ -977,11 +1009,11 @@ onBeforeUnmount((): void => {
         <i class="fa-solid fa-eye"></i>
       </button>
 
-      <button v-if="hasEdit" class="app-table-floating-action" type="button" title="Editar" @click="handleEdit(selectedRow)">
+      <button v-if="hasEdit" class="app-table-floating-action" type="button" title="Editar" @click="requestEdit(selectedRow)">
         <i class="fa-solid fa-pen"></i>
       </button>
 
-      <button v-if="hasDelete" class="app-table-floating-action is-danger" type="button" title="Excluir" @click="handleDelete(selectedRow)">
+      <button v-if="hasDelete" class="app-table-floating-action is-danger" type="button" title="Excluir" @click="requestDelete(selectedRow)">
         <i class="fa-solid fa-trash"></i>
       </button>
     </div>
