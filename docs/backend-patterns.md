@@ -43,8 +43,6 @@ Controller → Service → Repository
 
 ### Métodos base
 - find
-- findWhere
-- firstWhere
 - create
 - update
 - delete
@@ -94,7 +92,6 @@ Usar exceptions semânticas:
 {
     "message": "...",
     "data": {},
-    "meta": {},
     "error": {}
 }
 ```

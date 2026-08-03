@@ -25,7 +25,7 @@ class CompanySeeder extends Seeder
                 'role_id' => $role->id,
                 'name' => 'Base',
                 'document' => '11222333000181',
-                'email' => 'base@workshop.local',
+                'email' => 'base@enterprise.local',
                 'phone' => '48999999999',
                 'secondary_phone' => null,
                 'zip_code' => null,

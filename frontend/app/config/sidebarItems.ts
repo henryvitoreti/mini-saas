@@ -43,6 +43,20 @@ const sidebarItemDefinitions: SidebarItemDefinition[] = [
         to: '/produtos',
         permissionBaseFrontUrl: 'produtos',
       },
+      {
+        key: 'product-categories',
+        label: 'Categorias de produtos',
+        icon: 'fa-solid fa-tags',
+        to: '/categorias-produtos',
+        permissionBaseFrontUrl: 'categorias-produtos',
+      },
+      {
+        key: 'services',
+        label: 'Serviços',
+        icon: 'fa-solid fa-screwdriver-wrench',
+        to: '/servicos',
+        permissionBaseFrontUrl: 'servicos',
+      },
     ],
   },
   {
@@ -51,6 +65,13 @@ const sidebarItemDefinitions: SidebarItemDefinition[] = [
     icon: 'fa-solid fa-screwdriver-wrench',
     children: [
       {
+        key: 'sales',
+        label: 'Vendas',
+        icon: 'fa-solid fa-cash-register',
+        to: '/vendas',
+        permissionBaseFrontUrl: 'vendas',
+      },
+      {
         key: 'work-orders',
         label: 'Ordens de Serviço',
         icon: 'fa-solid fa-file-lines',
@@ -58,23 +79,11 @@ const sidebarItemDefinitions: SidebarItemDefinition[] = [
         permissionBaseFrontUrl: 'ordens-servico',
       },
       {
-        key: 'checklists',
-        label: 'Checklists',
-        icon: 'fa-solid fa-clipboard-check',
-        children: [
-          {
-            key: 'model-checklist',
-            label: 'Modelos',
-            to: '/checklists/modelos',
-            permissionBaseFrontUrl: 'checklists/modelos',
-          },
-          {
-            key: 'history-checklist',
-            label: 'Histórico',
-            to: '/checklists/historico',
-            permissionBaseFrontUrl: 'checklists/historico',
-          },
-        ],
+        key: 'stock',
+        label: 'Estoque',
+        icon: 'fa-solid fa-warehouse',
+        to: '/estoque',
+        permissionBaseFrontUrl: 'estoque',
       },
     ],
   },

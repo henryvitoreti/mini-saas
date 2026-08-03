@@ -30,7 +30,7 @@ function toggleTheme(): void {
 
     <div class="app-header-title">
       <span class="app-header-eyebrow">Sistema</span>
-      <strong>Gestão da oficina</strong>
+      <strong>Gestão empresarial</strong>
     </div>
 
     <div class="app-header-actions">

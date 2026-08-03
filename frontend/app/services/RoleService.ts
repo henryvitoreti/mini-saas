@@ -2,6 +2,7 @@ import { apiHttpClient, type ApiResponse } from '@/services/api/http-client';
 import type { Role, RoleListParams } from '@/types/entities/role';
 import type { FormPayload } from '@/types/forms/form';
 import type { TablePagination } from '@/types/ui/table';
+import { normalizeQueryParams } from '@/utils/normalizer';
 
 type RoleListResponse = {
   items: Role[];
@@ -15,18 +16,10 @@ type RoleListResponse = {
   next_page_url: string|null;
 };
 
-function normalizeParams(params: Partial<RoleListParams>): Record<string, string|number|boolean> {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, value]) => {
-      return value !== null && value !== undefined && value !== '';
-    }),
-  ) as Record<string, string|number|boolean>;
-}
-
 export const RoleService = {
   async index(params: Partial<RoleListParams>): Promise<TablePagination> {
     const response = await apiHttpClient.get<ApiResponse<RoleListResponse>>('/roles', {
-      query: normalizeParams(params),
+      query: normalizeQueryParams(params),
       showGlobalLoading: false,
     });
 

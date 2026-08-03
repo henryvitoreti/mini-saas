@@ -136,7 +136,7 @@ function parseCustomerStatusFilter(value: string): boolean|null {
 <template>
   <AppDataTable
       title="Clientes"
-      subtitle="Gerencie a base de clientes da oficina."
+      subtitle="Gerencie a base de clientes da empresa."
       :columns="columns"
       :has-show="false"
       base-url="/clientes"
