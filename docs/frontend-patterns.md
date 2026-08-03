@@ -5,7 +5,6 @@
 - Nuxt 4
 - Vue 3 (Composition API)
 - TypeScript
-- Pinia
 - SCSS
 - Bootstrap 5
 
@@ -62,8 +61,8 @@ frontend/
 
 ## 🔄 Estado
 
-- Pinia apenas para estado global
-- Evitar excesso de stores
+- `useState` do Nuxt para estado global compartilhado
+- Composables para encapsular estado e comportamento reutilizáveis
 
 ---
 

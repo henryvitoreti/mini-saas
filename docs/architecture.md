@@ -65,7 +65,6 @@ Controller → Service → Repository → Model (Banco de Dados)
 - Nuxt 4
 - Vue 3 (Composition API)
 - TypeScript
-- Pinia
 - SCSS
 - Bootstrap 5
 
