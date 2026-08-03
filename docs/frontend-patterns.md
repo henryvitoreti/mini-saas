@@ -15,7 +15,6 @@
 
 ```
 frontend/
-frontend/
 ├── app/
 │   ├── app.vue
 │   ├── pages/
@@ -23,16 +22,16 @@ frontend/
 │   ├── components/
 │   ├── composables/
 │   ├── middleware/
-│   └── assets/
-│       └── scss/
-├── public/
-├── server/
-├── shared/
+│   ├── assets/
+│   │   └── scss/
 │   ├── types/
 │   ├── constants/
-│   └── utils/
-├── services/
-├── stores/
+│   ├── utils/
+│   ├── services/
+│   └── stores/
+├── public/
+├── scripts/
+├── server/
 ├── nuxt.config.ts
 ```
 
@@ -101,10 +100,17 @@ frontend/
 
 ## 📦 Services
 
-- authService
-- customerService
-- vehicleService
-- workOrderService
+- AuthService
+- CustomerService
+- PermissionService
+- RoleService
+- TenantService
+- ProductCategoryService
+- ProductService
+- ServiceService
+- SaleOrderService
+- WorkOrderService
+- StockTransactionService
 
 ---
 

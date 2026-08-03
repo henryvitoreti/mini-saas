@@ -1,6 +1,6 @@
 # Mini-SaaS
 
-Projeto em desenvolvimento de um Mini-SaaS multi-tenant para oficinas mecânicas.
+Projeto em desenvolvimento de um Mini-SaaS multi-tenant para gestão empresarial.
 
 ## Estrutura inicial
 

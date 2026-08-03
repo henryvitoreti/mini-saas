@@ -1,8 +1,8 @@
-import { apiHttpClient, type ApiResponse } from '@/services/api/http-client';
+import { AuthService } from '@/services/AuthService';
+import { apiHttpClient } from '@/services/api/http-client';
 import type {
   AuthenticatedPermissions,
   AuthenticatedSession,
-  LoginPayload,
   LoginResponse,
 } from '@/types/auth';
 
@@ -97,20 +97,20 @@ function createAuthPermissions(permissions: AuthenticatedPermissions|null|undefi
 }
 
 export async function login(email: string, password: string, rememberLogin = false): Promise<LoginResponse> {
-  const response = await apiHttpClient.post<ApiResponse<LoginResponse>>('/login', {
+  const response = await AuthService.login({
     email,
     password,
     remember_login: rememberLogin,
-  } satisfies LoginPayload);
+  });
 
-  apiHttpClient.setToken(response.data.access_token);
-  const session = createAuthSession(response.data);
-  const permissions = createAuthPermissions(response.data.permissions);
+  apiHttpClient.setToken(response.access_token);
+  const session = createAuthSession(response);
+  const permissions = createAuthPermissions(response.permissions);
 
   setStoredAuthSessionAndPermissions(session, permissions);
 
   return {
-    ...response.data,
+    ...response,
     ...session,
     permissions,
   };
@@ -118,7 +118,7 @@ export async function login(email: string, password: string, rememberLogin = fal
 
 export async function logout(): Promise<void> {
   try {
-    await apiHttpClient.post<ApiResponse<[]>>('/logout');
+    await AuthService.logout();
   } catch (error) {
     void error;
   } finally {
@@ -128,16 +128,11 @@ export async function logout(): Promise<void> {
 }
 
 export async function checkAuthToken(): Promise<void> {
-  await apiHttpClient.get<void>('/auth/check', { showGlobalLoading: false });
+  await AuthService.checkToken();
 }
 
 export async function refreshAuthPermissions(): Promise<AuthenticatedPermissions> {
-  const response = await apiHttpClient.get<ApiResponse<{ permissions: AuthenticatedPermissions }>>(
-    '/auth/permissions',
-    { showGlobalLoading: false },
-  );
-
-  const permissions = createAuthPermissions(response.data.permissions);
+  const permissions = createAuthPermissions(await AuthService.permissions());
   setStoredAuthPermissions(permissions);
 
   return permissions;
