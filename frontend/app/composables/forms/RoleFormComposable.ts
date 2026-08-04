@@ -1,7 +1,7 @@
 import { computed, reactive, ref } from 'vue';
 import { useBaseForm } from '@/composables/forms/BaseFormComposable';
-import { PermissionService } from '@/services/permissions/PermissionService';
-import { RoleService } from '@/services/roles/RoleService';
+import { PermissionService } from '@/services/PermissionService';
+import { RoleService } from '@/services/RoleService';
 import { ApiValidationError } from '@/types/api/http';
 import type { Permission, Role, RolePermission } from '@/types/entities/role';
 import type { FormAttribute, FormPayload } from '@/types/forms/form';

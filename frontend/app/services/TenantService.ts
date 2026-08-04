@@ -1,19 +1,12 @@
 import { apiHttpClient, type ApiResponse } from '@/services/api/http-client';
 import type { Tenant, TenantListParams, TenantListResponse } from '@/types/entities/tenant';
 import type { FormPayload } from '@/types/forms/form';
-
-function normalizeParams(params: Partial<TenantListParams>): Record<string, string|number|boolean> {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, value]) => {
-      return value !== null && value !== undefined && value !== '';
-    }),
-  ) as Record<string, string|number|boolean>;
-}
+import { normalizeQueryParams } from '@/utils/normalizer';
 
 export const TenantService = {
   async index(params: Partial<TenantListParams>): Promise<TenantListResponse> {
     const response = await apiHttpClient.get<ApiResponse<TenantListResponse>>('/tenants', {
-      query: normalizeParams(params),
+      query: normalizeQueryParams(params),
       showGlobalLoading: false,
     });
 

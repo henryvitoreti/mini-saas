@@ -1,58 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API Laravel responsável pela autenticação, regras de negócio, persistência de dados e isolamento multi-tenant da plataforma. Para preparar os containers e o ambiente local, consulte o [README da raiz](../README.md).
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Laravel 13 e PHP 8.3+
+- PostgreSQL
+- Redis
+- JWT (`tymon/jwt-auth`)
+- `stancl/tenancy` para multi-tenancy por banco de dados
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Arquitetura
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+O fluxo padrão é:
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+Controller → Service → Repository → Model
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+| Camada | Responsabilidade |
+| --- | --- |
+| Controllers | Recebem a requisição, delegam o caso de uso ao Service e retornam Resources e respostas HTTP padronizadas. |
+| Services | Orquestram regras de negócio, transações e integrações entre repositórios. |
+| Repositories | Centralizam consultas, filtros, paginação e acesso aos Models. |
+| Requests | Estendem `FormRequest`, normalizam a entrada e declaram regras e mensagens de validação. |
+| Resources | Transformam Models no contrato de resposta da API, inclusive nas versões simples e detalhada. |
 
-## Contributing
+Controllers não devem concentrar regra de negócio nem serializar Models diretamente; use Resources nas respostas externas.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Estrutura principal
 
-## Code of Conduct
+```text
+app/
+├── Console/Commands/     # comandos Artisan do projeto
+├── Helpers/              # helpers de contexto, empresa e permissões
+├── Http/
+│   ├── Controllers/Api/  # endpoints da API
+│   ├── Middleware/       # tenancy, autenticação e autorização
+│   ├── Requests/         # FormRequests
+│   └── Resources/        # serialização das respostas
+├── Models/               # modelos Eloquent
+├── Repositories/         # acesso e consultas aos dados
+├── Services/             # casos de uso e regras de negócio
+└── Support/              # utilitários de infraestrutura e roteamento
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+database/
+├── migrations/           # migrations do banco central
+├── migrations/tenant/    # migrations aplicadas a cada banco de tenant
+└── seeders/              # seeders centrais e de tenant
 
-## Security Vulnerabilities
+routes/api.php            # rotas HTTP da API
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Multi-tenancy
 
-## License
+O tenant é resolvido pelo domínio da requisição, a partir da tabela central `domains`. O middleware `tenant.domain` localiza o tenant ativo e inicializa o contexto correspondente antes de a rota continuar.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+O banco central contém `tenants`, `domains`, `roles`, `permissions` e `permission_role`. Cada tenant possui seu próprio banco para `company`, `users`, `customers` e os dados operacionais que forem adicionados.
+
+`tenants.role_id` e `company.role_id` devem permanecer sincronizados: ambos apontam logicamente para a role central que define as permissões efetivas da empresa. Consulte [docs/tenancy.md](../docs/tenancy.md) e [docs/permissions.md](../docs/permissions.md) para os detalhes do modelo.
+
+## Autenticação e autorização
+
+- `POST /login` autentica o usuário do tenant atual e retorna um token JWT, empresa e permissões.
+- Rotas autenticadas usam o middleware `jwt.auth` e o header `Authorization: Bearer <token>`.
+- O middleware `company.permission` valida a permissão ativa da role da empresa para rotas operacionais.
+- O frontend pode usar a lista de permissões para a interface, mas a API é a fonte de verdade para autorização.
+
+## Respostas e validação
+
+As respostas usam o formato abaixo:
+
+```json
+{
+  "message": "Operação realizada com sucesso.",
+  "data": {}
+}
+```
+
+Em erros, a API retorna `message` e `errors`. Listagens paginadas ficam em `data.items` e incluem os metadados de paginação.
+
+Use um `FormRequest` em operações de escrita. Ele deve normalizar os dados em `prepareForValidation()`, delegar regras ao Model quando aplicável e retornar mensagens específicas quando necessário. Falhas de validação retornam `422` com erros por campo.
+
+## Comandos úteis
+
+Execute os comandos Laravel pelo serviço `backend` do Docker Compose:
+
+```bash
+# Inspeção
+docker compose exec backend php artisan route:list
+docker compose exec backend php artisan optimize:clear
+
+# Banco central
+docker compose exec backend php artisan migrate
+docker compose exec backend php artisan db:seed
+docker compose exec backend php artisan make:migration create_example_table
+
+# Bancos dos tenants
+docker compose exec backend php artisan tenants:migrate
+docker compose exec backend php artisan tenant:seed
+docker compose exec backend php artisan tenants:make-migration create_example_table
+
+# Atualiza o catálogo central de permissões e seus vínculos com roles
+docker compose exec backend php artisan permission:update
+```
+
+`make:migration` cria uma migration do banco central. `tenants:make-migration` cria a migration em `database/migrations/tenant`; depois de criá-la, execute `tenants:migrate` para aplicá-la a todos os tenants existentes. O comando `tenant:seed` executa `DatabaseTenantSeeder` em todos os tenants.
+
+## Convenções
+
+- Mantenha rotas agrupadas em `routes/api.php` e aplique os middlewares adequados ao contexto central ou tenant.
+- Use `ApiResponseTrait` para respostas consistentes e `ApiBaseController` como base dos controllers de API.
+- Proteja dados de tenant com o contexto de tenancy; não consulte ou grave dados operacionais na conexão central.
+- Use Resources para respostas externas e Repositories para consultas reutilizáveis.
+- Cadastre permissões e roles somente no banco central; não replique essas tabelas nos bancos de tenant.
+- Ao alterar o pacote de acesso de uma empresa, sincronize os dois `role_id` e invalide o cache de permissões do tenant.
+
+## Uso e direitos
+
+Este é um projeto pessoal desenvolvido para portfólio. Não é um software aberto e não concede permissão para uso, cópia, modificação, distribuição ou comercialização, total ou parcial, sem autorização prévia e expressa do autor.

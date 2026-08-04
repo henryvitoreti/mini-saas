@@ -3,7 +3,9 @@
 Este documento separa a modelagem em dois contextos:
 
 - **Banco base**: armazena informações globais da plataforma.
-- **Banco do tenant**: armazena os dados operacionais de cada oficina.
+- **Banco do tenant**: armazena os dados operacionais de cada tenant.
+
+O ERD descreve a estrutura planejada e não cria tabelas, migrations ou funcionalidades.
 
 ## Banco base
 
@@ -98,66 +100,127 @@ erDiagram
         timestamp deleted_at
     }
 
-    VEHICLES {
+    PRODUCT_CATEGORIES {
         bigint id PK
-        varchar plate
-        varchar brand
-        varchar model
-        varchar version
-        int year_manufacture
-        int year_model
-        varchar color
-        varchar fuel_type
-        varchar transmission_type
-        bigint odometer
-        varchar chassis
-        text notes
+        varchar name
+        text description
         boolean is_active
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at
     }
 
+    PRODUCTS {
+        bigint id PK
+        bigint category_id FK
+        varchar name
+        varchar sku
+        varchar barcode
+        text description
+        decimal cost_price
+        decimal sale_price
+        decimal stock_quantity
+        boolean allow_negative_stock
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    SERVICES {
+        bigint id PK
+        varchar name
+        text description
+        decimal price
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    SALE_ORDERS {
+        bigint id PK
+        bigint customer_id FK
+        bigint user_id FK
+        decimal subtotal
+        decimal discount
+        decimal total
+        text notes
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    SALE_ORDER_ITEMS {
+        bigint id PK
+        bigint sale_order_id FK
+        bigint product_id FK
+        decimal quantity
+        decimal unit_price
+        decimal discount
+        decimal subtotal
+        decimal total
+        timestamp created_at
+        timestamp updated_at
+    }
+
     WORK_ORDERS {
         bigint id PK
         varchar order_number UK
         bigint customer_id FK
-        bigint vehicle_id FK
         bigint assigned_user_id FK
-        varchar status
-        varchar priority
-        date entry_date
-        date expected_delivery_date
+        enum status
         timestamp completed_at
-        bigint odometer
         text customer_complaint
         text technical_diagnosis
         text general_notes
+        decimal subtotal
+        decimal discount
+        decimal total
         timestamp created_at
         timestamp updated_at
+        timestamp deleted_at
     }
 
-    CHECKLISTS {
+    WORK_ORDER_PRODUCT_ITEMS {
         bigint id PK
         bigint work_order_id FK
-        varchar title
-        varchar status
-        text notes
+        bigint product_id FK
+        decimal quantity
+        decimal unit_price
+        decimal discount
+        decimal subtotal
+        decimal total
         timestamp created_at
         timestamp updated_at
     }
 
-    CHECKLIST_ITEMS {
+    WORK_ORDER_SERVICE_ITEMS {
         bigint id PK
-        bigint checklist_id FK
-        varchar label
-        text description
-        boolean is_required
-        boolean is_checked
-        timestamp checked_at
-        int position
+        bigint work_order_id FK
+        bigint service_id FK
+        decimal quantity
+        decimal unit_price
+        decimal discount
+        decimal subtotal
+        decimal total
         timestamp created_at
         timestamp updated_at
+    }
+
+    STOCK_TRANSACTIONS {
+        bigint id PK
+        bigint product_id FK
+        bigint user_id FK
+        bigint sale_order_id FK
+        bigint work_order_id FK
+        enum type
+        decimal quantity
+        decimal previous_quantity
+        decimal current_quantity
+        decimal unit_cost
+        text notes
+        timestamp created_at
     }
 
     COMPANY {
@@ -181,9 +244,19 @@ erDiagram
         timestamp updated_at
     }
 
+    PRODUCT_CATEGORIES ||--o{ PRODUCTS : "possui"
+    CUSTOMERS ||--o{ SALE_ORDERS : "possui"
+    USERS ||--o{ SALE_ORDERS : "registra"
+    SALE_ORDERS ||--o{ SALE_ORDER_ITEMS : "possui"
+    PRODUCTS ||--o{ SALE_ORDER_ITEMS : "integra"
     CUSTOMERS ||--o{ WORK_ORDERS : "possui"
-    VEHICLES ||--o{ WORK_ORDERS : "possui"
     USERS ||--o{ WORK_ORDERS : "responsavel"
-    WORK_ORDERS ||--o{ CHECKLISTS : "possui"
-    CHECKLISTS ||--o{ CHECKLIST_ITEMS : "possui"
+    WORK_ORDERS ||--o{ WORK_ORDER_PRODUCT_ITEMS : "possui"
+    PRODUCTS ||--o{ WORK_ORDER_PRODUCT_ITEMS : "integra"
+    WORK_ORDERS ||--o{ WORK_ORDER_SERVICE_ITEMS : "possui"
+    SERVICES ||--o{ WORK_ORDER_SERVICE_ITEMS : "integra"
+    PRODUCTS ||--o{ STOCK_TRANSACTIONS : "movimenta"
+    USERS ||--o{ STOCK_TRANSACTIONS : "registra"
+    SALE_ORDERS ||--o{ STOCK_TRANSACTIONS : "origina"
+    WORK_ORDERS ||--o{ STOCK_TRANSACTIONS : "origina"
 ```

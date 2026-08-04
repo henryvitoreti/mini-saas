@@ -12,3 +12,11 @@ export function normalizeBooleanValue(value: unknown): boolean|null {
 
     return null;
 }
+
+type QueryParamInput = string|number|boolean|null|undefined;
+
+export function normalizeQueryParams(params: Record<string, QueryParamInput>): Record<string, string|number|boolean> {
+    return Object.fromEntries(Object.entries(params).filter(([, value]): boolean => {
+        return value !== null && value !== undefined && value !== '';
+    })) as Record<string, string|number|boolean>;
+}

@@ -9,7 +9,7 @@ import {
   PHONE_INPUT_MASK,
   ZIP_CODE_INPUT_MASK
 } from '@/utils/input-mask';
-import { CustomerService } from '@/services/customers/CustomerService';
+import { CustomerService } from '@/services/CustomerService';
 import {
   CUSTOMER_TYPE_COMPANY,
   CUSTOMER_TYPE_INDIVIDUAL,

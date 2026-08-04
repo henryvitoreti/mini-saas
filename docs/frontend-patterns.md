@@ -5,7 +5,6 @@
 - Nuxt 4
 - Vue 3 (Composition API)
 - TypeScript
-- Pinia
 - SCSS
 - Bootstrap 5
 
@@ -15,7 +14,6 @@
 
 ```
 frontend/
-frontend/
 ├── app/
 │   ├── app.vue
 │   ├── pages/
@@ -23,16 +21,16 @@ frontend/
 │   ├── components/
 │   ├── composables/
 │   ├── middleware/
-│   └── assets/
-│       └── scss/
-├── public/
-├── server/
-├── shared/
+│   ├── assets/
+│   │   └── scss/
 │   ├── types/
 │   ├── constants/
-│   └── utils/
-├── services/
-├── stores/
+│   ├── utils/
+│   ├── services/
+│   └── stores/
+├── public/
+├── scripts/
+├── server/
 ├── nuxt.config.ts
 ```
 
@@ -63,8 +61,8 @@ frontend/
 
 ## 🔄 Estado
 
-- Pinia apenas para estado global
-- Evitar excesso de stores
+- `useState` do Nuxt para estado global compartilhado
+- Composables para encapsular estado e comportamento reutilizáveis
 
 ---
 
@@ -101,10 +99,17 @@ frontend/
 
 ## 📦 Services
 
-- authService
-- customerService
-- vehicleService
-- workOrderService
+- AuthService
+- CustomerService
+- PermissionService
+- RoleService
+- TenantService
+- ProductCategoryService
+- ProductService
+- ServiceService
+- SaleOrderService
+- WorkOrderService
+- StockTransactionService
 
 ---
 

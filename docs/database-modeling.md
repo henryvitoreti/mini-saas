@@ -2,12 +2,12 @@
 
 ## Objetivo
 
-Definir a estrutura de dados inicial do sistema de acordo com o ERD atual, mantendo o projeto simples, entregavel e coerente com o MVP.
+Definir a estrutura de dados planejada do sistema de acordo com o ERD atual, mantendo o projeto simples, entregavel e coerente com o MVP. Esta documentacao nao cria tabelas, migrations ou funcionalidades.
 
 A modelagem esta dividida em dois contextos:
 
 - **Banco base**: armazena dados globais da plataforma e resolve o tenant.
-- **Banco do tenant**: armazena os dados operacionais de cada oficina.
+- **Banco do tenant**: armazena os dados operacionais de cada tenant.
 
 ---
 
@@ -19,7 +19,7 @@ Responsavel por identificar tenants, dominios, roles centralizadas e permissoes 
 
 ### 2. Banco do tenant
 
-Responsavel pelos dados internos da oficina, incluindo usuarios, clientes, veiculos, ordens de servico, checklists e dados da empresa.
+Responsavel pelos dados internos de cada tenant, incluindo usuarios, clientes, catalogo, vendas, estoque, ordens de servico e dados da empresa.
 
 ---
 
@@ -52,7 +52,7 @@ Armazena os tenants cadastrados na plataforma.
 ### Observacoes
 
 - O campo `id` segue o padrao do pacote de tenancy.
-- Dados especificos da oficina ficam no banco do tenant, nao no banco base.
+- Dados especificos de cada tenant ficam no banco do tenant, nao no banco base.
 
 ---
 
@@ -182,7 +182,7 @@ Relaciona roles centralizadas com permissoes globais da plataforma.
 
 ## Tabela: `users`
 
-Armazena os usuarios internos da oficina.
+Armazena os usuarios internos do tenant.
 
 ### Campos
 
@@ -212,7 +212,7 @@ Armazena os usuarios internos da oficina.
 
 ## Tabela: `customers`
 
-Armazena os clientes da oficina.
+Armazena os clientes do tenant.
 
 ### Campos
 
@@ -252,25 +252,15 @@ Armazena os clientes da oficina.
 
 ---
 
-## Tabela: `vehicles`
+## Tabela: `product_categories`
 
-Armazena os veiculos cadastrados na oficina.
+Armazena as categorias dos produtos.
 
 ### Campos
 
 - `id`
-- `plate`
-- `brand`
-- `model`
-- `version`
-- `year_manufacture`
-- `year_model`
-- `color`
-- `fuel_type`
-- `transmission_type`
-- `odometer`
-- `chassis`
-- `notes`
+- `name`
+- `description`
 - `is_active`
 - `created_at`
 - `updated_at`
@@ -280,78 +270,152 @@ Armazena os veiculos cadastrados na oficina.
 
 - primary key: `id`
 
-### Observacoes
-
-- O veiculo nao possui vinculo direto com cliente no ERD atual.
-- O vinculo entre cliente e veiculo acontece pela ordem de servico.
-- Isso permite que o mesmo veiculo esteja relacionado a clientes diferentes ao longo do tempo.
-
 ---
 
-## Tabela: `work_orders`
+## Tabela: `products`
 
-Armazena as ordens de servico da oficina.
+Armazena os produtos comercializados ou utilizados pela empresa.
 
 ### Campos
 
 - `id`
-- `order_number`
+- `category_id`
+- `name`
+- `sku`
+- `barcode`
+- `description`
+- `cost_price`
+- `sale_price`
+- `stock_quantity`
+- `allow_negative_stock`
+- `is_active`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+### Constraints
+
+- primary key: `id`
+- foreign key: `category_id` -> `product_categories.id`
+
+---
+
+## Tabela: `services`
+
+Armazena os servicos oferecidos pela empresa.
+
+### Campos
+
+- `id`
+- `name`
+- `description`
+- `price`
+- `is_active`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+### Constraints
+
+- primary key: `id`
+
+---
+
+## Tabela: `sale_orders`
+
+Armazena os dados consolidados das vendas.
+
+### Campos
+
+- `id`
 - `customer_id`
-- `vehicle_id`
-- `assigned_user_id`
-- `status`
-- `priority`
-- `entry_date`
-- `expected_delivery_date`
-- `completed_at`
-- `odometer`
-- `customer_complaint`
-- `technical_diagnosis`
-- `general_notes`
+- `user_id`
+- `subtotal`
+- `discount`
+- `total`
+- `notes`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+### Constraints
+
+- primary key: `id`
+- foreign key: `customer_id` -> `customers.id`
+- foreign key: `user_id` -> `users.id`
+
+---
+
+## Tabela: `sale_order_items`
+
+Armazena os produtos de cada venda.
+
+### Campos
+
+- `id`
+- `sale_order_id`
+- `product_id`
+- `quantity`
+- `unit_price`
+- `discount`
+- `subtotal`
+- `total`
 - `created_at`
 - `updated_at`
 
 ### Constraints
 
 - primary key: `id`
-- foreign key: `customer_id` -> `customers.id`
-- foreign key: `vehicle_id` -> `vehicles.id`
-- foreign key: `assigned_user_id` -> `users.id`
-- unique: `order_number`
-
-### Observacoes
-
-- Nao ha soft delete para ordens de servico no ERD atual.
-- A exclusao de uma ordem de servico nao deve ser um fluxo comum.
-- O fluxo principal deve ser controle por status.
-
-### Status sugeridos
-
-- `open`
-- `in_progress`
-- `waiting_approval`
-- `completed`
-- `cancelled`
-
-### Prioridades sugeridas
-
-- `low`
-- `medium`
-- `high`
+- foreign key: `sale_order_id` -> `sale_orders.id`
+- foreign key: `product_id` -> `products.id`
 
 ---
 
-## Tabela: `checklists`
+## Tabela: `work_orders`
 
-Armazena checklists vinculados a ordens de servico.
+Armazena as ordens de servico do tenant.
+
+### Campos
+
+- `id`
+- `order_number`
+- `customer_id`
+- `assigned_user_id`
+- `status` (`enum`)
+- `completed_at`
+- `customer_complaint`
+- `technical_diagnosis`
+- `general_notes`
+- `subtotal`
+- `discount`
+- `total`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+### Constraints
+
+- primary key: `id`
+- foreign key: `customer_id` -> `customers.id`
+- foreign key: `assigned_user_id` -> `users.id`
+- unique: `order_number`
+
+---
+
+## Tabela: `work_order_product_items`
+
+Armazena os produtos utilizados em cada ordem de servico.
 
 ### Campos
 
 - `id`
 - `work_order_id`
-- `title`
-- `status`
-- `notes`
+- `product_id`
+- `quantity`
+- `unit_price`
+- `discount`
+- `subtotal`
+- `total`
 - `created_at`
 - `updated_at`
 
@@ -359,51 +423,67 @@ Armazena checklists vinculados a ordens de servico.
 
 - primary key: `id`
 - foreign key: `work_order_id` -> `work_orders.id`
-
-### Observacoes
-
-- Nao ha soft delete para checklists no ERD atual.
-- A estrutura foi mantida simples para permitir evolucao futura.
-
-### Status sugeridos
-
-- `pending`
-- `completed`
+- foreign key: `product_id` -> `products.id`
 
 ---
 
-## Tabela: `checklist_items`
+## Tabela: `work_order_service_items`
 
-Armazena os itens de cada checklist.
+Armazena os servicos utilizados em cada ordem de servico.
 
 ### Campos
 
 - `id`
-- `checklist_id`
-- `label`
-- `description`
-- `is_required`
-- `is_checked`
-- `checked_at`
-- `position`
+- `work_order_id`
+- `service_id`
+- `quantity`
+- `unit_price`
+- `discount`
+- `subtotal`
+- `total`
 - `created_at`
 - `updated_at`
 
 ### Constraints
 
 - primary key: `id`
-- foreign key: `checklist_id` -> `checklists.id`
+- foreign key: `work_order_id` -> `work_orders.id`
+- foreign key: `service_id` -> `services.id`
 
-### Observacoes
+---
 
-- Nao ha soft delete para itens de checklist no ERD atual.
-- Itens podem ser removidos definitivamente.
+## Tabela: `stock_transactions`
+
+Armazena as movimentacoes de estoque dos produtos.
+
+### Campos
+
+- `id`
+- `product_id`
+- `user_id`
+- `sale_order_id`
+- `work_order_id`
+- `type` (`enum`)
+- `quantity`
+- `previous_quantity`
+- `current_quantity`
+- `unit_cost`
+- `notes`
+- `created_at`
+
+### Constraints
+
+- primary key: `id`
+- foreign key: `product_id` -> `products.id`
+- foreign key: `user_id` -> `users.id`
+- foreign key: `sale_order_id` -> `sale_orders.id`
+- foreign key: `work_order_id` -> `work_orders.id`
 
 ---
 
 ## Tabela: `company`
 
-Armazena os dados da empresa/oficina do tenant.
+Armazena os dados da empresa do tenant.
 
 ### Campos
 
@@ -428,7 +508,7 @@ Armazena os dados da empresa/oficina do tenant.
 
 ### Descricao dos campos
 
-- `name`: nome da empresa/oficina.
+- `name`: nome da empresa.
 - `document`: CNPJ ou documento da empresa.
 - `logo_path`: caminho do arquivo de logo da empresa.
 - `notes`: observacoes internas sobre a empresa.
@@ -442,7 +522,7 @@ Armazena os dados da empresa/oficina do tenant.
 
 - Cada tenant deve possuir apenas um registro em `company`.
 - O tenant base deve iniciar com um registro chamado `Base`.
-- A tabela fica no banco do tenant porque representa dados especificos da oficina.
+- A tabela fica no banco do tenant porque representa dados especificos da empresa.
 - `role_id` aponta para uma role central e nao deve depender de foreign key fisica entre bancos.
 
 ---
@@ -455,23 +535,28 @@ Armazena os dados da empresa/oficina do tenant.
 - `roles`
 - `users`
 - `customers`
-- `vehicles`
+- `product_categories`
+- `products`
+- `services`
+- `sale_orders`
+- `work_orders`
 
 ## Tabelas sem soft delete
 
 - `domains`
 - `permissions`
 - `permission_role`
-- `work_orders`
-- `checklists`
-- `checklist_items`
+- `sale_order_items`
+- `work_order_product_items`
+- `work_order_service_items`
+- `stock_transactions`
 - `company`
 
 ### Justificativa
 
 Soft delete e usado apenas onde faz sentido restaurar dados ou evitar exclusao acidental de cadastros principais.
 
-Tabelas operacionais, tabelas pivot, configuracoes globais e dados unicos por tenant ficam sem soft delete no ERD atual.
+Itens operacionais, tabelas pivot, configuracoes globais e dados unicos por tenant ficam sem soft delete. Cadastros principais, vendas e ordens de servico possuem `deleted_at` conforme a estrutura documentada.
 
 ---
 
@@ -490,11 +575,25 @@ Tabelas operacionais, tabelas pivot, configuracoes globais e dados unicos por te
 
 ## Banco do tenant
 
+- `product_categories` hasMany `products`
+- `products` belongsTo `product_categories`
+- `sale_orders` belongsTo `customers`
+- `sale_orders` belongsTo `users`
+- `sale_orders` hasMany `sale_order_items`
+- `sale_order_items` belongsTo `sale_orders`
+- `sale_order_items` belongsTo `products`
 - `work_orders` belongsTo `customers`
-- `work_orders` belongsTo `vehicles`
 - `work_orders` belongsTo `users` usando `assigned_user_id`
-- `checklists` belongsTo `work_orders`
-- `checklist_items` belongsTo `checklists`
+- `work_orders` hasMany `work_order_product_items`
+- `work_order_product_items` belongsTo `work_orders`
+- `work_order_product_items` belongsTo `products`
+- `work_orders` hasMany `work_order_service_items`
+- `work_order_service_items` belongsTo `work_orders`
+- `work_order_service_items` belongsTo `services`
+- `stock_transactions` belongsTo `products`
+- `stock_transactions` belongsTo `users`
+- `stock_transactions` belongsTo `sale_orders`
+- `stock_transactions` belongsTo `work_orders`
 
 ## Relacionamento logico entre bancos
 
@@ -516,23 +615,13 @@ Tabelas operacionais, tabelas pivot, configuracoes globais e dados unicos por te
 
 - `users`
 - `customers`
-- `vehicles`
+- `product_categories`
+- `products`
+- `services`
+- `sale_orders`
+- `sale_order_items`
 - `work_orders`
-- `checklists`
-- `checklist_items`
+- `work_order_product_items`
+- `work_order_service_items`
+- `stock_transactions`
 - `company`
-
----
-
-# 6. Pontos deixados para evolucao futura
-
-Os itens abaixo seguem fora do ERD atual para reduzir complexidade inicial:
-
-- planos
-- assinaturas
-- usuarios globais
-- roles por usuario
-- auditoria avancada
-- tabela separada de enderecos
-- vinculo direto entre cliente e veiculo
-- historico de dono do veiculo

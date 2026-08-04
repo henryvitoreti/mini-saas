@@ -30,6 +30,7 @@ import {
   type TableExportRecord,
 } from '@/utils/table-export';
 import { capitalizeFirstLetter } from '@/utils/text-format';
+import { normalizeQueryParams } from '@/utils/normalizer';
 
 type AppDataTableListResponse = {
   items: TableRow[]|null;
@@ -307,14 +308,6 @@ function restoreSettings(): void {
   pagination.value = createEmptyPagination(limit.value);
 }
 
-function normalizeParams(params: Record<string, TableFilterValue>): Record<string, string|number|boolean> {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, value]): boolean => {
-      return value !== null && value !== '';
-    }),
-  ) as Record<string, string|number|boolean>;
-}
-
 function getFilterValue(name: string): TableFilterStateValue {
   return filterValues[name] ?? props.defaultFilters?.[name] ?? null;
 }
@@ -378,7 +371,7 @@ function buildParams(): Record<string, string|number|boolean> {
     }
   });
 
-  return normalizeParams(params);
+  return normalizeQueryParams(params);
 }
 
 function buildExportParams(): Record<string, string|number|boolean> {

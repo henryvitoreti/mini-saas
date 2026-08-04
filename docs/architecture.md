@@ -2,7 +2,7 @@
 
 ## 🎯 Objetivo
 
-Este projeto é um Mini-SaaS multi-tenant voltado para oficinas mecânicas, com foco em:
+Este projeto é um Mini-SaaS multi-tenant voltado para a gestão operacional de empresas, com foco em:
 
 - Arquitetura limpa (Clean Architecture)
 - Escalabilidade
@@ -65,7 +65,6 @@ Controller → Service → Repository → Model (Banco de Dados)
 - Nuxt 4
 - Vue 3 (Composition API)
 - TypeScript
-- Pinia
 - SCSS
 - Bootstrap 5
 
@@ -78,7 +77,7 @@ Controller → Service → Repository → Model (Banco de Dados)
 ## 📦 Estrutura do Monorepo
 
 ```
-henry/
+saas/
 ├── backend/
 ├── frontend/
 ├── docker/
@@ -86,7 +85,6 @@ henry/
 ├── docs/
 ├── .env.example
 ├── docker-compose.yml
-├── docker-compose.override.yml
 └── README.md
 ```
 

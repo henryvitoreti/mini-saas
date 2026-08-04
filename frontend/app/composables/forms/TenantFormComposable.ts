@@ -1,13 +1,13 @@
 import { reactive } from 'vue';
 import { useBaseForm } from '@/composables/forms/BaseFormComposable';
 import {
-  ADDRESS_NUMBER_INPUT_MASK,
-  CNPJ_INPUT_MASK,
-  CNPJ_INPUT_PLACEHOLDER,
-  PHONE_INPUT_MASK,
-  ZIP_CODE_INPUT_MASK,
+    ADDRESS_NUMBER_INPUT_MASK,
+        CNPJ_INPUT_MASK,
+        CNPJ_INPUT_PLACEHOLDER,
+        PHONE_INPUT_MASK,
+        ZIP_CODE_INPUT_MASK,
 } from '@/utils/input-mask';
-import { TenantService } from '@/services/tenants/TenantService';
+import { TenantService } from '@/services/TenantService';
 import type { SelectOption } from '@/types/common/select';
 import type { Tenant } from '@/types/entities/tenant';
 import type { FormAttribute, FormPayload } from '@/types/forms/form';
