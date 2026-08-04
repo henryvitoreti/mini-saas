@@ -13,6 +13,15 @@ class PersonalDataFormatter
         return preg_replace('/\D/', '', $value);
     }
 
+    public static function onlyAlphaNumeric(string|null $value): string|null
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return strtoupper((string) preg_replace('/[^a-zA-Z0-9]/', '', $value));
+    }
+
     public static function cpf(string|null $value): string|null
     {
         $value = self::onlyNumbers($value);
@@ -26,7 +35,7 @@ class PersonalDataFormatter
 
     public static function cnpj(string|null $value): string|null
     {
-        $value = self::onlyNumbers($value);
+        $value = self::onlyAlphaNumeric($value);
 
         if ($value === null || strlen($value) !== 14) {
             return $value;
@@ -37,15 +46,13 @@ class PersonalDataFormatter
 
     public static function document(string|null $value): string|null
     {
-        $value = self::onlyNumbers($value);
+        $value = self::onlyAlphaNumeric($value);
 
         if ($value === null) {
             return null;
         }
 
-        return strlen($value) === 14
-            ? self::cnpj($value)
-            : self::cpf($value);
+        return strlen($value) === 14 ? self::cnpj($value) : self::cpf($value);
     }
 
     public static function phone(string|null $value): string|null

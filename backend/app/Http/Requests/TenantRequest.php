@@ -6,6 +6,7 @@ use App\Enums\PersonType;
 use App\Helpers\ConnectionHelper;
 use App\Models\Domain;
 use App\Rules\ValidateDocument;
+use App\Support\Formatters\PersonalDataFormatter;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -36,6 +37,7 @@ class TenantRequest extends FormRequest
 
         $company['name'] = $company['name'] ?? $this->input('name');
         $company['role_id'] = $company['role_id'] ?? $this->input('role_id', $this->input('company_role_id'));
+        $company['document'] = PersonalDataFormatter::onlyAlphaNumeric($company['document'] ?? null);
 
         $user['name'] = $user['name'] ?? $this->input('user_name');
         $user['email'] = $user['email'] ?? $this->input('user_email');

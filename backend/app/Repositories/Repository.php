@@ -116,7 +116,7 @@ abstract class Repository
     public function forceDelete(int|string $id): bool
     {
         if (!in_array(SoftDeletes::class, class_uses_recursive($this->model), true)) {
-            throw new RuntimeException('O model informado não suporta exclusão permanente. Verifique se ele usa SoftDeletes.');
+            return $this->delete($id);
         }
 
         $entity = $this->query()->withTrashed()->find($id);

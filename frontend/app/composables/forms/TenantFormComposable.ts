@@ -1,9 +1,16 @@
 import { reactive } from 'vue';
 import { useBaseForm } from '@/composables/forms/BaseFormComposable';
+import {
+  ADDRESS_NUMBER_INPUT_MASK,
+  CNPJ_INPUT_MASK,
+  CNPJ_INPUT_PLACEHOLDER,
+  PHONE_INPUT_MASK,
+  ZIP_CODE_INPUT_MASK,
+} from '@/utils/input-mask';
 import { TenantService } from '@/services/tenants/TenantService';
 import type { SelectOption } from '@/types/common/select';
 import type { Tenant } from '@/types/entities/tenant';
-import type { FormAttribute, FormInputMask, FormPayload } from '@/types/forms/form';
+import type { FormAttribute, FormPayload } from '@/types/forms/form';
 
 type TenantFormTextAttribute = FormAttribute<string|null>;
 type TenantFormOptionValueAttribute = FormAttribute<string|number|null>;
@@ -32,8 +39,6 @@ type TenantFormAttributes = {
   userEmail: TenantFormTextAttribute;
   userPassword: TenantFormTextAttribute;
 } & Record<string, FormAttribute>;
-
-const PHONE_INPUT_MASK: FormInputMask = ['[(##) ####-####]', '[(##) #####-####]'];
 
 export function useTenantForm() {
   const attributes = reactive<TenantFormAttributes>({
@@ -68,10 +73,10 @@ export function useTenantForm() {
       payloadKey: 'company.document',
       value: null,
       label: 'CNPJ',
-      placeholder: '00.000.000/0000-00',
+      placeholder: CNPJ_INPUT_PLACEHOLDER,
       required: true,
       errorMessage: null,
-      mask: '[##.###.###/####-##]',
+      mask: CNPJ_INPUT_MASK,
     },
     companyEmail: {
       responseKey: 'email',
@@ -107,7 +112,7 @@ export function useTenantForm() {
       label: 'CEP',
       placeholder: '00000-000',
       errorMessage: null,
-      mask: '[#####-###]',
+      mask: ZIP_CODE_INPUT_MASK,
       startIcon: 'fa-solid fa-location-dot',
       tip: 'Preenche rua, bairro, cidade e estado quando encontrado.',
     },
@@ -149,7 +154,7 @@ export function useTenantForm() {
       value: null,
       label: 'Número',
       errorMessage: null,
-      mask: '[############]',
+      mask: ADDRESS_NUMBER_INPUT_MASK,
     },
     complement: {
       responseKey: 'complement',

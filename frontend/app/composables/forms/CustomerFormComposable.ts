@@ -1,6 +1,14 @@
 import { reactive } from 'vue';
 import { useBaseForm } from '@/composables/forms/BaseFormComposable';
 import { customerTypeOptions } from '@/utils/entities/customer';
+import {
+  ADDRESS_NUMBER_INPUT_MASK,
+  CNPJ_INPUT_MASK,
+  CNPJ_INPUT_PLACEHOLDER,
+  CPF_INPUT_MASK,
+  PHONE_INPUT_MASK,
+  ZIP_CODE_INPUT_MASK
+} from '@/utils/input-mask';
 import { CustomerService } from '@/services/customers/CustomerService';
 import {
   CUSTOMER_TYPE_COMPANY,
@@ -46,20 +54,18 @@ type CustomerFormAttributes = {
   notes: CustomerFormTextAttribute;
 } & Record<string, FormAttribute>;
 
-const PHONE_INPUT_MASK: FormInputMask = ['[(##) ####-####]', '[(##) #####-####]'];
-
 const customerTypeFormConfigs: Record<CustomerType, CustomerTypeFormConfig> = {
   [CUSTOMER_TYPE_INDIVIDUAL]: {
     birthDateLabel: 'Data de nascimento',
     documentLabel: 'CPF',
-    documentMask: '[###.###.###-##]',
+    documentMask: CPF_INPUT_MASK,
     documentPlaceholder: '000.000.000-00',
   },
   [CUSTOMER_TYPE_COMPANY]: {
     birthDateLabel: 'Data de abertura',
     documentLabel: 'CNPJ',
-    documentMask: '[##.###.###/####-##]',
-    documentPlaceholder: '00.000.000/0000-00',
+    documentMask: CNPJ_INPUT_MASK,
+    documentPlaceholder: CNPJ_INPUT_PLACEHOLDER,
   },
 };
 
@@ -157,7 +163,7 @@ export function useCustomerForm() {
       placeholder: '00000-000',
       required: true,
       errorMessage: null,
-      mask: '[#####-###]',
+      mask: ZIP_CODE_INPUT_MASK,
       startIcon: 'fa-solid fa-location-dot',
       tip: 'Preenche rua, bairro, cidade e estado quando encontrado.',
     },
@@ -203,7 +209,7 @@ export function useCustomerForm() {
       value: null,
       label: 'Número',
       errorMessage: null,
-      mask: '[############]',
+      mask: ADDRESS_NUMBER_INPUT_MASK,
     },
     complement: {
       responseKey: 'complement',

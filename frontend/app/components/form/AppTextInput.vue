@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import IMask from 'imask';
-import type { InputMask } from 'imask';
+import type { InputMask, Masked, MaskedDynamic, MaskedDynamicOptions, MaskedPatternOptions, TailDetails } from 'imask';
 import AppInfoTooltip from "@/components/ui/AppInfoTooltip.vue";
 import type { FormInputMask } from '@/types/forms/form';
 import type { AppTextInputProps } from '@/types/ui/form';
 
-type InputMaskOptions = {
-  mask: string|Array<{ mask: string }>;
+type InputMaskOptions = MaskedPatternOptions|MaskedDynamicOptions;
+
+const MASK_DEFINITIONS = {
+  A: /[A-Za-z0-9]/,
 };
 
 const props = withDefaults(
@@ -53,10 +55,15 @@ const maskOptions = computed<InputMaskOptions|undefined>(() => {
   if (Array.isArray(normalizedMask.value)) {
     return {
       mask: normalizedMask.value.map((mask) => ({ mask })),
+      dispatch: selectDynamicMask,
     };
   }
 
-  return { mask: normalizedMask.value };
+  return {
+    mask: normalizedMask.value,
+    definitions: MASK_DEFINITIONS,
+    prepareChar: (character) => character.toUpperCase(),
+  };
 });
 
 function normalizeMask(mask: string): string {
@@ -65,6 +72,14 @@ function normalizeMask(mask: string): string {
       : mask;
 
   return unwrappedMask.replaceAll('#', '0');
+}
+
+function selectDynamicMask(appended: string, dynamicMasked: MaskedDynamic, _flags: unknown, tail: string|String|TailDetails): Masked|undefined {
+  const totalDigits = [dynamicMasked.unmaskedValue, appended, String(tail ?? '')].join('').replace(/\D/g, '').length;
+
+  return dynamicMasked.compiledMasks.find((mask) => {
+    return String(mask.mask).replace(/[^0]/g, '').length >= totalDigits;
+  }) ?? dynamicMasked.compiledMasks[dynamicMasked.compiledMasks.length - 1];
 }
 
 function emitValue(value: string): void {
@@ -117,11 +132,6 @@ function setupMask(): void {
   });
 
   syncValue();
-}
-
-function handleMaskedInput(): void {
-  updateMaskValue();
-  emitValue(maskInstance.value?.unmaskedValue ?? '');
 }
 
 function handleInput(event: Event): void {
@@ -188,8 +198,6 @@ onBeforeUnmount(() => {
           :aria-required="Boolean(required)"
           @focus="updateMaskValue"
           @keydown.capture="updateMaskValue"
-          @input="handleMaskedInput"
-          @change="handleMaskedInput"
       >
 
       <input

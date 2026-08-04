@@ -19,7 +19,7 @@ type DatePickerInputAttrs = {
 };
 
 const datePickerFormats = { input: 'dd/MM/yyyy' };
-const datePickerTextInput = { format: 'dd/MM/yyyy' };
+const datePickerTextInput = false;
 const datePickerTimeConfig = { enableTimePicker: false };
 
 const props = withDefaults(

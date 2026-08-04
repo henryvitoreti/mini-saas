@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PersonType;
 use App\Models\Customer;
 use App\Support\Formatters\DateFormatter;
 use App\Support\Formatters\PersonalDataFormatter;
@@ -16,8 +17,12 @@ class CustomerRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $document = $this->input('type') === PersonType::COMPANY->value
+            ? PersonalDataFormatter::onlyAlphaNumeric($this->input('document'))
+            : PersonalDataFormatter::onlyNumbers($this->input('document'));
+
         $this->merge([
-            'document' => PersonalDataFormatter::onlyNumbers($this->input('document')),
+            'document' => $document,
             'phone' => PersonalDataFormatter::onlyNumbers($this->input('phone')),
             'secondary_phone' => PersonalDataFormatter::onlyNumbers($this->input('secondary_phone')),
             'zip_code' => PersonalDataFormatter::onlyNumbers($this->input('zip_code')),

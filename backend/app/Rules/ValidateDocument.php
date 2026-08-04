@@ -14,16 +14,19 @@ class ValidateDocument implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $document = PersonalDataFormatter::onlyNumbers((string) $value);
         $type = $this->type instanceof PersonType ? $this->type->value : $this->type;
 
         if ($type === PersonType::COMPANY->value) {
-            if ($document === null || strlen($document) !== 14 || !$this->isValidCnpj($document)) {
+            $document = PersonalDataFormatter::onlyAlphaNumeric((string) $value);
+
+            if ($document === null || !preg_match('/^[A-Z0-9]{12}\d{2}$/', $document) || !$this->isValidCnpj($document)) {
                 $fail('O CNPJ informado é inválido.');
             }
 
             return;
         }
+
+        $document = PersonalDataFormatter::onlyNumbers((string) $value);
 
         if ($document === null || strlen($document) !== 11 || !$this->isValidCpf($document)) {
             $fail('O CPF informado é inválido.');
@@ -68,7 +71,7 @@ class ValidateDocument implements ValidationRule
             $sum = 0;
 
             foreach ($weights[$digitPosition - 12] as $index => $weight) {
-                $sum += (int) $document[$index] * $weight;
+                $sum += (ord($document[$index]) - 48) * $weight;
             }
 
             $digit = $sum % 11 < 2 ? 0 : 11 - ($sum % 11);
