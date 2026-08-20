@@ -1,6 +1,9 @@
+export type AppInfoTooltipPosition = 'top'|'left';
+
 export type AppInfoTooltipProps = {
   text: string;
   isInputLabel: boolean|null;
+  position: AppInfoTooltipPosition|null;
 };
 
 export type AppDialogProps = {

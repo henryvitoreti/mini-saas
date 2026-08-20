@@ -81,6 +81,7 @@ const props = withDefaults(
     hasRestore: false,
     hasCreate: true,
     hasSearch: true,
+    hasRefresh: true,
     hasExport: true,
     hasFilters: true,
     searchPlaceholder: 'Pesquisar...',
@@ -822,7 +823,7 @@ onBeforeUnmount((): void => {
 
       <div class="app-data-table-toolbar-actions">
         <button
-            v-if="hasSearch"
+            v-if="hasRefresh"
             class="btn app-data-table-icon-button"
             type="button"
             title="Atualizar"

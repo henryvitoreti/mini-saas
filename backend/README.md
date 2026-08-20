@@ -63,7 +63,7 @@ O banco central contém `tenants`, `domains`, `roles`, `permissions` e `permissi
 ## Autenticação e autorização
 
 - `POST /login` autentica o usuário do tenant atual e retorna um token JWT, empresa e permissões.
-- Rotas autenticadas usam o middleware `jwt.auth` e o header `Authorization: Bearer <token>`.
+- Rotas autenticadas usam o middleware `jwt.tenant.auth` e o header `Authorization: Bearer <token>`.
 - O middleware `company.permission` valida a permissão ativa da role da empresa para rotas operacionais.
 - O frontend pode usar a lista de permissões para a interface, mas a API é a fonte de verdade para autorização.
 

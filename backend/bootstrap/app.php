@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Middleware\InitializeTenantByDomain;
 use App\Http\Middleware\EnsureBaseTenant;
 use App\Http\Middleware\EnsureCompanyPermission;
+use App\Http\Middleware\EnsureTokenTenant;
+use App\Http\Middleware\InitializeTenantByDomain;
 use App\Http\Middleware\PreventConcurrentMutableRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,7 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.base' => EnsureBaseTenant::class,
             'company.permission' => EnsureCompanyPermission::class,
             'tenant.domain' => InitializeTenantByDomain::class,
+            'tenant.token' => EnsureTokenTenant::class,
             'mutable.request.lock' => PreventConcurrentMutableRequests::class,
+        ]);
+
+        $middleware->group('jwt.tenant.auth', [
+            'jwt.auth',
+            'tenant.token',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

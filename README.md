@@ -52,7 +52,7 @@ docker compose logs -f backend frontend
 As migrations do banco base criam as tabelas globais da plataforma, como `tenants`, `domains`, `roles`, `permissions` e `permission_role`.
 
 ```bash
-docker compose exec -it saas-backend php artisan migrate
+docker compose exec backend php artisan migrate
 ```
 
 ### 3. Popular o banco base
@@ -60,7 +60,7 @@ docker compose exec -it saas-backend php artisan migrate
 O seeder principal cria os dados iniciais do banco base, incluindo roles, permissões e o tenant `base`.
 
 ```bash
-docker compose exec -it saas-backend php artisan db:seed
+docker compose exec backend php artisan db:seed
 ```
 
 ### 4. Executar as migrations dos tenants
@@ -68,7 +68,7 @@ docker compose exec -it saas-backend php artisan db:seed
 O tenant `base` é provisionado automaticamente quando é criado. Ainda assim, execute o comando abaixo para garantir que todos os bancos de tenant existentes recebam as migrations atuais. Repita este passo sempre que uma migration for adicionada em `backend/database/migrations/tenant`.
 
 ```bash
-docker compose exec -it saas-backend php artisan tenants:migrate
+docker compose exec backend php artisan tenants:migrate
 ```
 
 ### 5. Opcional: popular os bancos dos tenants
@@ -76,7 +76,7 @@ docker compose exec -it saas-backend php artisan tenants:migrate
 Para inserir os registros iniciais definidos em `DatabaseTenantSeeder` em todos os tenants existentes, execute:
 
 ```bash
-docker compose exec -it saas-backend php artisan tenant:seed
+docker compose exec backend php artisan tenant:seed
 ```
 
 Esse passo é opcional. O provisionamento padrão já cria a empresa e o usuário inicial do tenant; o seed adiciona os dados de exemplo definidos para cada banco de tenant.
@@ -85,7 +85,6 @@ Esse passo é opcional. O provisionamento padrão já cria a empresa e o usuári
 
 - Aplicação: `http://app.127.0.0.1.sslip.io:8081`
 - API: `http://api.app.127.0.0.1.sslip.io:8081/api`
-- Dashboard do Traefik: `http://localhost:8080`
 
 ## Uso e direitos
 

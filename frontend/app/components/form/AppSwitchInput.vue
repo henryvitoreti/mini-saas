@@ -8,6 +8,7 @@ const props = withDefaults(
     required: false,
     disabled: false,
     isDefaultLayout: true,
+    tipPosition: 'top',
   },
 );
 
@@ -50,7 +51,7 @@ function handleChange(event: Event): void {
           <span v-if="required" class="app-form-required">*</span>
         </label>
 
-        <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" />
+        <AppInfoTooltip v-if="tip" :text="tip" :is-input-label="true" :position="tipPosition" />
       </div>
 
       <label class="app-switch-control" :for="inputId">
@@ -75,7 +76,7 @@ function handleChange(event: Event): void {
         </span>
       </label>
 
-      <AppInfoTooltip v-if="!isDefaultLayout && tip" :text="tip" />
+      <AppInfoTooltip v-if="!isDefaultLayout && tip" :text="tip" :position="tipPosition" />
     </div>
 
     <p v-if="errorMessage" class="app-form-error-message">

@@ -1,6 +1,7 @@
 import type { Breadcrumb } from '@/types/common/navigation';
 import type { SelectOption } from '@/types/common/select';
 import type { FormInputMask } from '@/types/forms/form';
+import type { AppInfoTooltipPosition } from '@/types/ui/components';
 
 export type DateRangeInputValue = [string|null, string|null];
 
@@ -76,6 +77,7 @@ export type AppSwitchInputProps = {
   required: boolean|null;
   disabled: boolean|null;
   tip: string|null;
+  tipPosition: AppInfoTooltipPosition|null;
   isDefaultLayout: boolean|null;
   errorMessage: string|null;
 };

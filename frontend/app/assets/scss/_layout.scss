@@ -827,6 +827,12 @@ input, select.form-select {
     opacity: 1;
     visibility: visible;
   }
+  &.is-position-left .app-tip-content {
+    right: calc(100% + 8px);
+    bottom: 50%;
+    left: auto;
+    transform: translateY(50%);
+  }
 }
 
 .app-input-tip {

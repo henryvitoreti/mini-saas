@@ -3,14 +3,14 @@
 namespace App\Http\Middleware;
 
 use App\Helpers\CompanyPermissionHelper;
-use App\Repositories\PermissionRepository;
+use App\Repositories\RoleRepository;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 readonly class EnsureCompanyPermission
 {
-    public function __construct(private PermissionRepository $permissionRepository)
+    public function __construct(private RoleRepository $rolePermission)
     {}
 
     /**
@@ -18,15 +18,22 @@ readonly class EnsureCompanyPermission
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $roleId = CompanyPermissionHelper::getCurrentRoleId();
-        $matches = $this->getBaseApiUrlCandidates($request);
-        $permissions = $this->permissionRepository->roleHasActivePermissionForApiUrls($roleId, $matches);
+        $defaultErrorResponse = [
+            'message' => 'Você não tem permissão para acessar este recurso.',
+            'error_code' => 'domain_permission_denied'
+        ];
 
-        if ($roleId === null || !$permissions) {
-            return response()->json([
-                'message' => 'Você não tem permissão para acessar este recurso.',
-                'error_code' => 'domain_permission_denied'
-            ], Response::HTTP_FORBIDDEN);
+        $roleId = CompanyPermissionHelper::getCurrentRoleId();
+
+        if ($roleId === null) {
+            return response()->json($defaultErrorResponse, Response::HTTP_FORBIDDEN);
+        }
+
+        $matches = $this->getBaseApiUrlCandidates($request);
+        $hasPermission = $this->rolePermission->hasActivePermissionForApiUrls($roleId, $matches);
+
+        if (!$hasPermission) {
+            return response()->json($defaultErrorResponse, Response::HTTP_FORBIDDEN);
         }
 
         return $next($request);

@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permission_role', function (Blueprint $table) {
-            $table->foreignId('role_id');
-            $table->foreignId('permission_id');
+            $table->foreignId('role_id')->constrained();
+            $table->foreignId('permission_id')->constrained();
             $table->boolean('show_locked_routes')->default(false);
             $table->boolean('is_active')->default(true);
 
             $table->index(['role_id', 'is_active', 'permission_id']);
+            $table->unique(['role_id', 'permission_id']);
         });
     }
 

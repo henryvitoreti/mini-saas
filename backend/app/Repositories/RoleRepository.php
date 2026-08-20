@@ -62,4 +62,18 @@ class RoleRepository extends BaseRepository
 
         return $query->get()->toArray();
     }
+
+    public function hasActivePermissionForApiUrls(int $id, array $baseApiUrls): bool
+    {
+        if ($baseApiUrls === []) {
+            return false;
+        }
+
+        $role = $this->find($id);
+
+        return $role?->permissions()
+            ->whereIn('permissions.base_api_url', $baseApiUrls)
+            ->wherePivot('is_active', true)
+            ->exists() ?? false;
+    }
 }

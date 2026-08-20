@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 class CustomerRepository extends BaseRepository
 {
     protected array $searchFields = [
-        'name' => 'like',
-        'document' => 'like',
+        'name' => 'ilike',
         'email' => 'like',
         'phone' => 'like',
         'secondary_phone' => 'like',
@@ -18,12 +17,12 @@ class CustomerRepository extends BaseRepository
 
     protected array $filterFields = [
         'id',
-        'name' => 'like',
-        'document',
+        'name' => 'ilike',
+        'document' => 'like',
         'email',
         'type',
-        'phone',
-        'secondary_phone',
+        'phone' => 'like',
+        'secondary_phone' => 'like',
         'zip_code',
         'street' => 'like',
         'number',

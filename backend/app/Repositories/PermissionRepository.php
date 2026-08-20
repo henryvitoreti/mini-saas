@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Eloquent\Collection;
 
 class PermissionRepository extends BaseRepository
@@ -61,23 +60,5 @@ class PermissionRepository extends BaseRepository
                 'permission_role.show_locked_routes',
                 'permission_role.is_active',
             ]);
-    }
-
-    /**
-     * @param array<int, string> $baseApiUrls
-     */
-    public function roleHasActivePermissionForApiUrls(int $roleId, array $baseApiUrls): bool
-    {
-        if ($baseApiUrls === []) {
-            return false;
-        }
-
-        $role = new Role;
-        $role->setAttribute($role->getKeyName(), $roleId);
-
-        return $role->permissions()
-            ->whereIn('permissions.base_api_url', $baseApiUrls)
-            ->wherePivot('is_active', true)
-            ->exists();
     }
 }

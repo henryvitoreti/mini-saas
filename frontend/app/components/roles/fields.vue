@@ -273,6 +273,7 @@ onMounted(async (): Promise<void> => {
                     :name="`permission_${permission.id}_show_locked_routes`"
                     label="Exibir bloqueada"
                     tip="Exibe a rota no menu, mas mantém o acesso bloqueado."
+                    tip-position="left"
                     :is-default-layout="false"
                     :model-value="null"
                     :required="false"
