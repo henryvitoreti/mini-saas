@@ -86,6 +86,13 @@ Esse passo é opcional. O provisionamento padrão já cria a empresa e o usuári
 - Aplicação: `http://app.127.0.0.1.sslip.io:8081`
 - API: `http://api.app.127.0.0.1.sslip.io:8081/api`
 
+### Usuário padrão de login
+
+Após executar o seed dos tenants descrito no passo 5, utilize as credenciais criadas pelo `UserSeeder` para acessar a aplicação:
+
+- E-mail: `admin@saas.com`
+- Senha: `abc123`
+
 ## Uso e direitos
 
 Este é um projeto pessoal desenvolvido para portfólio. Não é um software aberto e não concede permissão para uso, cópia, modificação, distribuição ou comercialização, total ou parcial, sem autorização prévia e expressa do autor.
