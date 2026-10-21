@@ -10,6 +10,6 @@ class ValueConverter
             return false;
         }
 
-        return in_array($value, [true, 1]) || in_array(strtolower((string)$value), ['1', 'true', 'on', 'yes']);
+        return in_array($value, [true, 1], true) || in_array(strtolower((string)$value), ['1', 'true', 'on', 'yes'], true);
     }
 }
